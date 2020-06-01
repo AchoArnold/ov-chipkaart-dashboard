@@ -1,8 +1,11 @@
 package validator
 
 import (
+	"net/url"
+
 	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/graph/model"
 	"github.com/pkg/errors"
+	"golang.org/x/text/language"
 )
 
 var (
@@ -13,11 +16,11 @@ var (
 // ValidationResult stores the result of a validation
 type ValidationResult struct {
 	HasError bool
-	Error    error
+	Errors   url.Values
 }
 
 // Validator represents a validator
 type Validator interface {
-	ValidateCreateUserInput(input model.CreateUserInput) ValidationResult
-	ValidateLoginInput(input model.LoginInput) ValidationResult
+	ValidateCreateUserInput(input model.CreateUserInput, localeTag language.Tag) ValidationResult
+	ValidateLoginInput(input model.LoginInput, localeTag language.Tag) ValidationResult
 }

@@ -1,12 +1,20 @@
 package resolver
 
 import (
+	"context"
+
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/database"
 	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/graph/validator"
+	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/middlewares"
 	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/services/jwt"
 	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/services/password"
 	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/shared/errorhandler"
 	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/shared/logger"
+	"github.com/pkg/errors"
+	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/gqlerror"
+	"golang.org/x/text/language"
 )
 
 // This file will not be regenerated automatically.
@@ -41,4 +49,29 @@ func NewResolver(
 		logger:          logger,
 		jwtService:      jwtService,
 	}
+}
+
+func (r *Resolver) languageTagFromContext(ctx context.Context) language.Tag {
+	tag := ctx.Value(middlewares.ContextKeyLanguageTag).(*language.Tag)
+	if tag == nil {
+		r.errorHandler.CaptureError(ctx, errors.New("cannot fetch language tag from resolver"))
+		return language.English
+	}
+
+	return *tag
+}
+
+func (r *Resolver) addValidationErrors(ctx context.Context, result validator.ValidationResult) {
+	for field, fieldErrors := range result.Errors {
+		for _, err := range fieldErrors {
+			r.addError(ctx, field, err)
+		}
+	}
+}
+
+func (r *Resolver) addError(ctx context.Context, pathName string, err string) {
+	graphql.AddError(ctx, &gqlerror.Error{
+		Message: err,
+		Path:    append(graphql.GetFieldContext(ctx).Path(), ast.PathName(pathName)),
+	})
 }

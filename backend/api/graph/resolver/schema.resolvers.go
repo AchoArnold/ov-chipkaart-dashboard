@@ -8,10 +8,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/vektah/gqlparser/v2/ast"
-	"github.com/vektah/gqlparser/v2/gqlerror"
-
 	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/database"
 	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/entities"
 	internalErrors "github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/errors"
@@ -24,9 +20,10 @@ import (
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.AuthOutput, error) {
-	validationResult := r.validator.ValidateCreateUserInput(input)
+	validationResult := r.validator.ValidateCreateUserInput(input, r.languageTagFromContext(ctx))
 	if validationResult.HasError {
-		return nil, validationResult.Error
+		r.addValidationErrors(ctx, validationResult)
+		return nil, internalErrors.ErrValidationError
 	}
 
 	hashedPassword, err := r.passwordService.HashPassword(input.Password)
@@ -73,15 +70,19 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 }
 
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthOutput, error) {
-	validationResult := r.validator.ValidateLoginInput(input)
+	validationResult := r.validator.ValidateLoginInput(input, r.languageTagFromContext(ctx))
 	if validationResult.HasError {
-		return nil, validationResult.Error
+		r.addValidationErrors(ctx, validationResult)
+		return nil, internalErrors.ErrValidationError
 	}
 
 	user, err := r.db.UserRepository().FindByEmail(input.Email)
 	if err == database.ErrEntityNotFound {
-		return nil, validator.ErrInvalidEmailOrPassword
+		r.addError(ctx, validator.ErrInvalidEmailOrPassword.Error(), "email")
+		r.addError(ctx, validator.ErrInvalidEmailOrPassword.Error(), "password")
+		return nil, internalErrors.ErrValidationError
 	}
+
 	if err != nil {
 		r.errorHandler.CaptureError(ctx, pkgErrors.Wrap(err, "cannot find user by email"))
 		return nil, internalErrors.ErrInternalServerError
@@ -89,16 +90,8 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 
 	passwordIsValid := r.passwordService.CheckPasswordHash(input.Password, user.Password)
 	if !passwordIsValid {
-		graphql.AddError(ctx, &gqlerror.Error{
-			Message: validator.ErrInvalidEmailOrPassword.Error(),
-			Path:    append(graphql.GetFieldContext(ctx).Path(), ast.PathName("email")),
-		})
-
-		graphql.AddError(ctx, &gqlerror.Error{
-			Message: validator.ErrInvalidEmailOrPassword.Error(),
-			Path:    append(graphql.GetFieldContext(ctx).Path(), ast.PathName("password")),
-		})
-
+		r.addError(ctx, validator.ErrInvalidEmailOrPassword.Error(), "email")
+		r.addError(ctx, validator.ErrInvalidEmailOrPassword.Error(), "password")
 		return nil, internalErrors.ErrValidationError
 	}
 

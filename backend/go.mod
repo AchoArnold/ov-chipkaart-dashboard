@@ -10,7 +10,6 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/getsentry/sentry-go v0.6.1
 	github.com/go-kit/kit v0.10.0
-	github.com/go-ozzo/ozzo-validation/v4 v4.2.1 // indirect
 	github.com/go-redis/redis/v8 v8.0.0-beta.2
 	github.com/google/uuid v1.1.1
 	github.com/google/wire v0.4.0
@@ -21,6 +20,7 @@ require (
 	github.com/lunux2008/xulu v0.0.0-20160308154621-fff51ca7218e
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/thedevsaddam/govalidator v1.9.10
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.0.1
 	go.mongodb.org/mongo-driver v1.3.3

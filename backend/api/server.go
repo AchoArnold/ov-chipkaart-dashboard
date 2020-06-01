@@ -49,8 +49,11 @@ func main() {
 
 	router := mux.NewRouter()
 
-	router.Use(middlewares.LoggingMiddleware(initializeLogger()))
-	router.Use(middlewares.EnrichUserID(initializeJWTService()))
+	middlewareClient := initializeMiddlewares()
+
+	router.Use(middlewareClient.LogRequest(initializeLogger()))
+	router.Use(middlewareClient.EnrichUserID(initializeJWTService()))
+	router.Use(middlewareClient.AddLanguageTag())
 
 	router.HandleFunc("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", initializeGraphQLServer())
@@ -80,7 +83,7 @@ func initializeResolver() *resolver.Resolver {
 }
 
 func initializeValidator() validator.Validator {
-	return govalidator.New(initializeDB())
+	return govalidator.New(initializeDB(), initializeErrorHandler())
 }
 
 func initializePasswordService() password.Service {
@@ -117,6 +120,10 @@ func initializeCache() cache.Cache {
 		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       0,
 	})
+}
+
+func initializeMiddlewares() middlewares.Client {
+	return middlewares.New()
 }
 
 func initializeLogger() logger.Logger {

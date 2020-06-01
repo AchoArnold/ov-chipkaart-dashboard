@@ -7,16 +7,8 @@ import (
 	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/services/jwt"
 )
 
-// ContextKey is the key for the context value
-type ContextKey string
-
-const (
-	// KeyUserID is the id for the context key
-	KeyUserID = ContextKey("user-id")
-)
-
 // EnrichUserID adds the user id to the context
-func EnrichUserID(jwtService jwt.Service) func(http.Handler) http.Handler {
+func (middleware Client) EnrichUserID(jwtService jwt.Service) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			header := r.Header.Get("Authorization")
@@ -36,7 +28,7 @@ func EnrichUserID(jwtService jwt.Service) func(http.Handler) http.Handler {
 			}
 
 			// put it in context
-			ctx := context.WithValue(r.Context(), KeyUserID, userID)
+			ctx := context.WithValue(r.Context(), ContextKeyUserID, userID)
 
 			// and call the next with our new context
 			r = r.WithContext(ctx)

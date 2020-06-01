@@ -1,4 +1,7 @@
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FAchoArnold%2Fov-chipkaart-dashboard.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FAchoArnold%2Fov-chipkaart-dashboard?ref=badge_shield)
+
 ## Plan
+
 
 ### V1
 

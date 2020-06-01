@@ -40,8 +40,8 @@ func (rw *responseWriter) WriteHeader(code int) {
 	return
 }
 
-// LoggingMiddleware logs the incoming HTTP request & its duration.
-func LoggingMiddleware(logger logger.Logger) func(http.Handler) http.Handler {
+// LogRequest logs the incoming HTTP request & its duration.
+func (middleware Client) LogRequest(logger logger.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
@@ -63,6 +63,7 @@ func LoggingMiddleware(logger logger.Logger) func(http.Handler) http.Handler {
 				"method", r.Method,
 				"path", r.URL.EscapedPath(),
 				"duration", time.Since(start),
+				"ip", r.RemoteAddr,
 			)
 		}
 
