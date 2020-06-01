@@ -78,8 +78,8 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 
 	user, err := r.db.UserRepository().FindByEmail(input.Email)
 	if err == database.ErrEntityNotFound {
-		r.addError(ctx, validator.ErrInvalidEmailOrPassword.Error(), "email")
-		r.addError(ctx, validator.ErrInvalidEmailOrPassword.Error(), "password")
+		r.addError(ctx, validator.ErrInvalidEmailOrPassword.Error(), "email", CodeValidationError)
+		r.addError(ctx, validator.ErrInvalidEmailOrPassword.Error(), "password", CodeValidationError)
 		return nil, internalErrors.ErrValidationError
 	}
 
@@ -90,8 +90,8 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 
 	passwordIsValid := r.passwordService.CheckPasswordHash(input.Password, user.Password)
 	if !passwordIsValid {
-		r.addError(ctx, validator.ErrInvalidEmailOrPassword.Error(), "email")
-		r.addError(ctx, validator.ErrInvalidEmailOrPassword.Error(), "password")
+		r.addError(ctx, "email", validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
+		r.addError(ctx, "password", validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
 		return nil, internalErrors.ErrValidationError
 	}
 

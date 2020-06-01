@@ -10,12 +10,12 @@ import (
 )
 
 const (
-	apiEndpointHolidays = "https://calendarific.com/api/v2/holidays"
+	apiEndpointHolidays = "https://calendarific.com/services/v2/holidays"
 	countryNL           = "NL"
 	holidayTypeNational = "national"
 )
 
-// CalendarificAPIClient is the data structure for the api client
+// CalendarificAPIClient is the data structure for the services client
 type CalendarificAPIClient struct {
 	apiKey     string
 	httpClient HTTPClient
@@ -71,13 +71,13 @@ func (apiClient CalendarificAPIClient) FetchNationalHolidays(timestamp time.Time
 
 	response, err := apiClient.doHTTPRequest(request)
 	if err != nil {
-		return holidays, errors.Wrap(err, "could not perform api request")
+		return holidays, errors.Wrap(err, "could not perform services request")
 	}
 
 	var apiResponse holidayAPIResponse
 	err = json.JsonDecode(&apiResponse, response.Body)
 	if err != nil {
-		return holidays, errors.Wrap(err, "cannot decode api response into json")
+		return holidays, errors.Wrap(err, "cannot decode services response into json")
 	}
 
 	if apiResponse.Meta.ErrorType != nil {

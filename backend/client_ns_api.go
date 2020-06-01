@@ -7,10 +7,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Api Endpoints
+// API Endpoints
 const (
 	apiEndpointPrices      = "https://gateway.apiportal.ns.nl/public-prijsinformatie/prices"
-	apiEndpointAllStations = "https://gateway.apiportal.ns.nl/public-reisinformatie/api/v2/stations"
+	apiEndpointAllStations = "https://gateway.apiportal.ns.nl/public-reisinformatie/services/v2/stations"
 )
 
 //NSAPIClient is a data structure for the price fetcher

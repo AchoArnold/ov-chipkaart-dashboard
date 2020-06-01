@@ -30,6 +30,7 @@ import (
 	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/services/jwt"
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
+	"github.com/rs/cors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -59,7 +60,7 @@ func main() {
 	router.Handle("/query", initializeGraphQLServer())
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	log.Fatal(http.ListenAndServe(":"+port, cors.AllowAll().Handler(router)))
 }
 
 func initializeGraphQLServer() *handler.Server {

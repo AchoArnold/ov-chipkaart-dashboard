@@ -20,6 +20,7 @@ require (
 	github.com/lunux2008/xulu v0.0.0-20160308154621-fff51ca7218e
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/rs/cors v1.6.0
 	github.com/thedevsaddam/govalidator v1.9.10
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.0.1

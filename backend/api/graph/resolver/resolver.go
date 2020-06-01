@@ -17,6 +17,11 @@ import (
 	"golang.org/x/text/language"
 )
 
+const (
+	// CodeValidationError is the code that is returned on a validation error message
+	CodeValidationError = "VALIDATION_ERROR"
+)
+
 // This file will not be regenerated automatically.
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
@@ -64,14 +69,17 @@ func (r *Resolver) languageTagFromContext(ctx context.Context) language.Tag {
 func (r *Resolver) addValidationErrors(ctx context.Context, result validator.ValidationResult) {
 	for field, fieldErrors := range result.Errors {
 		for _, err := range fieldErrors {
-			r.addError(ctx, field, err)
+			r.addError(ctx, field, err, CodeValidationError)
 		}
 	}
 }
 
-func (r *Resolver) addError(ctx context.Context, pathName string, err string) {
+func (r *Resolver) addError(ctx context.Context, pathName string, err string, code string) {
 	graphql.AddError(ctx, &gqlerror.Error{
 		Message: err,
 		Path:    append(graphql.GetFieldContext(ctx).Path(), ast.PathName(pathName)),
+		Extensions: map[string]interface{}{
+			"code": code,
+		},
 	})
 }

@@ -1,5 +1,4 @@
 import React, { useState, MouseEvent, ChangeEvent } from 'react';
-import './index.scss';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
@@ -16,6 +15,9 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import GoogleInvisibleCaptcha from '../../components/GoogleInvisibleCaptcha';
 import useTheme from '@material-ui/core/styles/useTheme';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { ApiService } from '../../serviceProvider';
+import { LoginResponse } from '../../services/graphql/types';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -74,6 +76,14 @@ const useStyles = makeStyles((theme: Theme) =>
             padding: theme.spacing(3),
             backgroundColor: theme.palette.primary.contrastText,
         },
+
+        loadingSpinner: {
+            color: theme.palette.secondary.main,
+            position: 'absolute',
+            left: '50%',
+            marginTop: 5,
+            marginLeft: -12,
+        },
     }),
 );
 
@@ -83,8 +93,28 @@ export default function LandingPage() {
     const theme = useTheme();
     const [state, setState] = useState({
         signUpActive: true,
-        rememberMeActive: true,
+        loading: false,
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        rememberMe: true,
     });
+
+    const handleLogin = function () {
+        ApiService.login({
+            email: state.email,
+            password: state.password,
+            rememberMe: state.rememberMe,
+            reCaptcha: 'how are you',
+        })
+            .then((response: LoginResponse) => {
+                console.log('then', response);
+            })
+            .catch((response: LoginResponse) => {
+                console.log('catch', response);
+            });
+    };
 
     return (
         <Grid container className={classes.container}>
@@ -180,49 +210,101 @@ export default function LandingPage() {
                                         <TextField
                                             required
                                             fullWidth
+                                            key="firstName"
+                                            name="firstName"
                                             size="small"
-                                            name="first_name"
                                             label={t('First Name')}
                                             variant="outlined"
                                             autoComplete="given-name"
+                                            value={state.firstName}
+                                            onChange={(event: any) => {
+                                                setState({
+                                                    ...state,
+                                                    firstName:
+                                                        event.target.value,
+                                                });
+                                            }}
                                         />
                                         <TextField
                                             required
                                             fullWidth
                                             size="small"
-                                            name="last_name"
-                                            label={t('Surname')}
+                                            key="lastName"
+                                            name="lastName"
+                                            label={t('Last Name')}
                                             variant="outlined"
                                             autoComplete="family-name"
+                                            value={state.lastName}
+                                            onChange={(event: any) => {
+                                                setState({
+                                                    ...state,
+                                                    lastName:
+                                                        event.target.value,
+                                                });
+                                            }}
                                         />
                                         <TextField
                                             required
                                             fullWidth
                                             size="small"
+                                            name="email"
+                                            key="email"
                                             label={t('Email')}
                                             autoComplete="email"
                                             variant="outlined"
+                                            value={state.email}
+                                            onChange={(event: any) => {
+                                                setState({
+                                                    ...state,
+                                                    email: event.target.value,
+                                                });
+                                            }}
                                         />
                                         <TextField
                                             required
                                             fullWidth
                                             size="small"
                                             name="password"
+                                            key="password"
                                             label={t('Password')}
                                             type="password"
                                             autoComplete="password"
                                             variant="outlined"
+                                            value={state.password}
+                                            onChange={(event: any) => {
+                                                setState({
+                                                    ...state,
+                                                    password:
+                                                        event.target.value,
+                                                });
+                                            }}
                                         />
 
                                         <GoogleInvisibleCaptcha />
 
                                         <Button
+                                            disabled={state.loading}
                                             fullWidth
+                                            onClick={(event: MouseEvent) => {
+                                                event.preventDefault();
+                                                setState({
+                                                    ...state,
+                                                    loading: true,
+                                                });
+                                            }}
                                             color="secondary"
                                             variant="contained"
                                         >
                                             {t('Sign Up')}
                                         </Button>
+                                        {state.loading && (
+                                            <CircularProgress
+                                                size={24}
+                                                className={
+                                                    classes.loadingSpinner
+                                                }
+                                            />
+                                        )}
                                     </Box>
                                 </form>
                             </Box>
@@ -257,19 +339,36 @@ export default function LandingPage() {
                                             fullWidth
                                             size="small"
                                             name="email"
+                                            key="email"
                                             label={t('Email')}
                                             autoComplete="email"
                                             variant="outlined"
+                                            value={state.email}
+                                            onChange={(event: any) => {
+                                                setState({
+                                                    ...state,
+                                                    email: event.target.value,
+                                                });
+                                            }}
                                         />
                                         <TextField
                                             required
                                             fullWidth
                                             size="small"
                                             name="password"
+                                            key="password"
                                             label={t('Password')}
                                             type="password"
                                             autoComplete="password"
                                             variant="outlined"
+                                            value={state.password}
+                                            onChange={(event: any) => {
+                                                setState({
+                                                    ...state,
+                                                    password:
+                                                        event.target.value,
+                                                });
+                                            }}
                                         />
 
                                         <GoogleInvisibleCaptcha />
@@ -277,9 +376,7 @@ export default function LandingPage() {
                                         <FormControlLabel
                                             control={
                                                 <Checkbox
-                                                    checked={
-                                                        state.rememberMeActive
-                                                    }
+                                                    checked={state.rememberMe}
                                                     onChange={(
                                                         event: ChangeEvent<
                                                             HTMLInputElement
@@ -287,7 +384,7 @@ export default function LandingPage() {
                                                     ) => {
                                                         setState({
                                                             ...state,
-                                                            rememberMeActive:
+                                                            rememberMe:
                                                                 event.target
                                                                     .checked,
                                                         });
@@ -303,9 +400,27 @@ export default function LandingPage() {
                                             fullWidth
                                             color="secondary"
                                             variant="contained"
+                                            disabled={state.loading}
+                                            onClick={(event: MouseEvent) => {
+                                                event.preventDefault();
+                                                setState({
+                                                    ...state,
+                                                    loading: true,
+                                                });
+
+                                                handleLogin();
+                                            }}
                                         >
                                             {t('Sign In')}
                                         </Button>
+                                        {state.loading && (
+                                            <CircularProgress
+                                                size={24}
+                                                className={
+                                                    classes.loadingSpinner
+                                                }
+                                            />
+                                        )}
                                     </Box>
                                 </form>
                             </Box>

@@ -2,7 +2,10 @@ package middlewares
 
 import (
 	"context"
+	"log"
 	"net/http"
+
+	"github.com/davecgh/go-spew/spew"
 
 	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/services/jwt"
 )
@@ -21,6 +24,10 @@ func (middleware Client) EnrichUserID(jwtService jwt.Service) func(http.Handler)
 
 			//validate jwt token
 			tokenString := header
+
+			spew.Dump(tokenString)
+			log.Println(tokenString)
+
 			userID, err := jwtService.GetUserIDFromToken(tokenString)
 			if err != nil {
 				http.Error(w, "Invalid token", http.StatusForbidden)
