@@ -17,7 +17,7 @@ import GoogleInvisibleCaptcha from '../../components/GoogleInvisibleCaptcha';
 import useTheme from '@material-ui/core/styles/useTheme';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ApiService } from '../../serviceProvider';
-import { LoginResponse } from '../../services/graphql/types';
+import { LoginResponse, ValidationError } from '../../services/graphql/types';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -87,6 +87,18 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+interface LocalState {
+    signUpActive: boolean;
+    loading: boolean;
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    rememberMe: boolean;
+    loginErrors: Array<ValidationError>;
+    signUpErrors: Array<ValidationError>;
+}
+
 export default function LandingPage() {
     const classes = useStyles();
     const { t } = useTranslation();
@@ -99,7 +111,9 @@ export default function LandingPage() {
         firstName: '',
         lastName: '',
         rememberMe: true,
-    });
+        loginErrors: [],
+        signUpErrors: [],
+    } as LocalState);
 
     const handleLogin = function () {
         ApiService.login({

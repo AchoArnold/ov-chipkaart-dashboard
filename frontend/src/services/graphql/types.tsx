@@ -35,4 +35,6 @@ export interface ValidationError {
     message: string;
 }
 
+export interface ValidationErrorContainer {}
+
 export interface LoginResponse extends defaultContent {}
