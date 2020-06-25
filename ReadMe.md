@@ -30,6 +30,7 @@
 - [ ] Add Monitoring and email service
 - [ ] Use gRPC for near real time services
 - [ ] Use a message broker for faster services
+- [ ] https://istio.io/ for monitoring
 
 ### V2
 
