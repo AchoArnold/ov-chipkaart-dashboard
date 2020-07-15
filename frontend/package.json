@@ -64,6 +64,7 @@
     "@graphql-codegen/introspection": "1.15.0",
     "@graphql-codegen/typescript": "1.15.0",
     "@graphql-codegen/typescript-operations": "1.15.0",
-    "@graphql-codegen/typescript-react-apollo": "1.15.0"
+    "@graphql-codegen/typescript-react-apollo": "1.15.0",
+    "notistack": "^0.9.17"
   }
 }

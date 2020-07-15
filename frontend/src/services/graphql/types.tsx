@@ -1,7 +1,9 @@
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
+import { ValidationErrorMessageBag } from '../../domain/ValidationErrorMessageBag';
+import { AuthOutput } from './generated';
 
-const loginMutation: DocumentNode = gql`
+export const loginMutation: DocumentNode = gql`
     mutation {
         login(
             input: {
@@ -22,19 +24,42 @@ const loginMutation: DocumentNode = gql`
     }
 `;
 
-interface defaultContent {
-    hasValidationError: boolean;
-    hasServerError: boolean;
+interface ResponseOptions<T> {
     errorTitle?: string;
-    errors?: Array<ValidationError>;
-    data?: object;
+    validationErrors?: ValidationErrorMessageBag;
+    data?: T;
 }
 
-export interface ValidationError {
-    key: string;
-    message: string;
+export class ApiResponse<T> {
+    errorTitle?: string;
+    validationErrors?: ValidationErrorMessageBag;
+    data?: T;
+
+    constructor(options: ResponseOptions<T>) {
+        this.errorTitle = options.errorTitle;
+        this.validationErrors = options.validationErrors;
+        this.data = options.data;
+    }
+
+    getValidationErrors(): ValidationErrorMessageBag | undefined {
+        return this.validationErrors;
+    }
+
+    hasValidationErrors(): boolean {
+        return this.validationErrors?.isEmpty() === false;
+    }
+
+    hasServerError(): boolean {
+        return this.errorTitle !== undefined && !this.hasValidationErrors();
+    }
+
+    isValid(): boolean {
+        return !this.hasValidationErrors() && !this.hasServerError();
+    }
+
+    getErrorTitle(): string | undefined {
+        return this.errorTitle;
+    }
 }
 
-export interface ValidationErrorContainer {}
-
-export interface LoginResponse extends defaultContent {}
+export type LoginResponse = ApiResponse<AuthOutput>;

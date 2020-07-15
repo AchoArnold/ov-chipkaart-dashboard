@@ -19,6 +19,11 @@ import (
 	pkgErrors "github.com/pkg/errors"
 )
 
+var (
+	fieldPassword = "password"
+	fieldEmail    = "email"
+)
+
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.AuthOutput, error) {
 	validationResult := r.validator.ValidateCreateUserInput(input, r.languageTagFromContext(ctx))
 	if validationResult.HasError {
@@ -78,8 +83,8 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 
 	user, err := r.db.UserRepository().FindByEmail(input.Email)
 	if err == database.ErrEntityNotFound {
-		r.addError(ctx, validator.ErrInvalidEmailOrPassword.Error(), "email", CodeValidationError)
-		r.addError(ctx, validator.ErrInvalidEmailOrPassword.Error(), "password", CodeValidationError)
+		r.addError(ctx, fieldEmail, validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
+		r.addError(ctx, fieldPassword, validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
 		return nil, internalErrors.ErrValidationError
 	}
 
@@ -90,8 +95,8 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 
 	passwordIsValid := r.passwordService.CheckPasswordHash(input.Password, user.Password)
 	if !passwordIsValid {
-		r.addError(ctx, "email", validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
-		r.addError(ctx, "password", validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
+		r.addError(ctx, fieldEmail, validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
+		r.addError(ctx, fieldPassword, validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
 		return nil, internalErrors.ErrValidationError
 	}
 

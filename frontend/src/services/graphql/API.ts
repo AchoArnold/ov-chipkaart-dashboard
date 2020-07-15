@@ -1,22 +1,20 @@
-import ApolloClient from 'apollo-client';
+import ApolloClient, { ApolloError } from 'apollo-client';
 import gql from 'graphql-tag';
 import { NormalizedCacheObject } from 'apollo-cache-inmemory';
-import { LoginInput } from './generated';
-import { DocumentNode } from 'graphql';
-import { LoginResponse, ValidationError } from './types';
-import { TFunction } from 'i18next';
+import { AuthOutput, LoginInput } from './generated';
+import { DocumentNode, GraphQLError } from 'graphql';
+import { ApiResponse, LoginResponse } from './types';
+import { ValidationErrorMessageBag } from '../../domain/ValidationErrorMessageBag';
+import MessageBag from '../message-bag/MessageBag';
+import { ERROR_MESSAGE_INTERNAL_SERVER_ERROR } from '../../constants/errors';
+import { ValidationError } from '../../domain/ValidationError';
 
 const VALIDATION_ERROR_CODE = 'VALIDATION_ERROR';
 
 class Api {
     client: ApolloClient<NormalizedCacheObject>;
-    translate: TFunction;
-    constructor(
-        client: ApolloClient<NormalizedCacheObject>,
-        translationFunction: TFunction,
-    ) {
+    constructor(client: ApolloClient<NormalizedCacheObject>) {
         this.client = client;
-        this.translate = translationFunction;
     }
 
     async login(input: LoginInput): Promise<LoginResponse> {
@@ -31,6 +29,10 @@ class Api {
                 })
                 {
                     user {
+                        id,
+                        firstName,
+                        lastName,
+                        email,
                         createdAt,
                         updatedAt,
                     }
@@ -45,50 +47,65 @@ class Api {
             .mutate({
                 mutation,
             })
-            .then((data: LoginOutput) => {
-                return {
-                    hasValidationError: false,
-                    hasServerError: false,
-                } as LoginResponse;
+            .then((data: any) => {
+                return new ApiResponse<AuthOutput>({
+                    data: data.data.login,
+                }) as LoginResponse;
             })
-            .catch((error: any) => {
-                let validationErrors = error.graphQLErrors
-                    .filter((element: any) => {
-                        return (
-                            element.extensions &&
-                            element.extensions.code === VALIDATION_ERROR_CODE
-                        );
-                    })
-                    .map((element: any) => {
-                        return {
-                            key: element.path[element.path.length - 1],
-                            message: element.message,
-                        } as ValidationError;
-                    });
-
-                let mainError: string = error.graphQLErrors
-                    .filter((element: any) => {
-                        return !(
-                            element.extensions &&
-                            element.extensions.code === VALIDATION_ERROR_CODE
-                        );
-                    })
-                    .map((element: any) => {
-                        return element.message;
-                    })[0];
-
-                if (mainError === undefined) {
-                    mainError = this.translate('internal server error');
-                }
-
-                return {
-                    hasValidationError: validationErrors.length > 0,
-                    hasServerError: validationErrors.length === 0,
-                    errorTitle: mainError,
-                    errors: validationErrors,
+            .catch((error: ApolloError) => {
+                return new ApiResponse<AuthOutput>({
+                    errorTitle: this.extractMainError(error),
+                    validationErrors: this.mapErrorToMessageBag(error),
                     data: undefined,
-                } as LoginResponse;
+                }) as LoginResponse;
             });
+    }
+
+    private extractMainError(error: ApolloError): string {
+        let mainError: string = error.graphQLErrors
+            .filter((element: GraphQLError) => {
+                return !(
+                    element.extensions &&
+                    element.extensions.code === VALIDATION_ERROR_CODE
+                );
+            })
+            .map((element: GraphQLError) => {
+                return element.message;
+            })[0];
+
+        if (mainError === undefined || mainError === '') {
+            return error.message ?? ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
+        }
+
+        return mainError;
+    }
+
+    private mapErrorToMessageBag(
+        error: ApolloError,
+    ): ValidationErrorMessageBag {
+        let messageBag: ValidationErrorMessageBag = new MessageBag<
+            string,
+            ValidationError
+        >();
+
+        error.graphQLErrors
+            .filter((element: GraphQLError) => {
+                return (
+                    element.extensions &&
+                    element.extensions.code === VALIDATION_ERROR_CODE
+                );
+            })
+            .forEach((element: GraphQLError) => {
+                if (element.path !== undefined) {
+                    let validationError: ValidationError = {
+                        key: element.path[element.path.length - 1].toString(),
+                        message: element.message,
+                    };
+                    messageBag.add(validationError.key, validationError);
+                }
+            });
+
+        return messageBag;
     }
 }
 

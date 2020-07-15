@@ -7,20 +7,25 @@ import LandingPage from './pages/LandingPage';
 import './i18n';
 import ROUTE_NAMES from './constants/routes';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { SnackbarProvider } from 'notistack';
 
 const theme = createMuiTheme({});
 
 const routing = (
     <ThemeProvider theme={theme}>
-        <Router>
-            <Switch>
-                <Route
-                    exact
-                    path={ROUTE_NAMES.LANDING_PAGE}
-                    component={LandingPage}
-                />
-            </Switch>
-        </Router>
+        <SnackbarProvider
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        >
+            <Router>
+                <Switch>
+                    <Route
+                        exact
+                        path={ROUTE_NAMES.LANDING_PAGE}
+                        component={LandingPage}
+                    />
+                </Switch>
+            </Router>
+        </SnackbarProvider>
     </ThemeProvider>
 );
 

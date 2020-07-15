@@ -17,7 +17,9 @@ import GoogleInvisibleCaptcha from '../../components/GoogleInvisibleCaptcha';
 import useTheme from '@material-ui/core/styles/useTheme';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ApiService } from '../../serviceProvider';
-import { LoginResponse, ValidationError } from '../../services/graphql/types';
+import { ValidationErrorMessageBag } from '../../domain/ValidationErrorMessageBag';
+import { LoginResponse } from '../../services/graphql/types';
+import { VariantType, useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -95,14 +97,15 @@ interface LocalState {
     firstName: string;
     lastName: string;
     rememberMe: boolean;
-    loginErrors: Array<ValidationError>;
-    signUpErrors: Array<ValidationError>;
+    loginErrors?: ValidationErrorMessageBag;
+    signUpErrors?: ValidationErrorMessageBag;
 }
 
 export default function LandingPage() {
     const classes = useStyles();
     const { t } = useTranslation();
     const theme = useTheme();
+    const { enqueueSnackbar } = useSnackbar();
     const [state, setState] = useState({
         signUpActive: true,
         loading: false,
@@ -111,11 +114,13 @@ export default function LandingPage() {
         firstName: '',
         lastName: '',
         rememberMe: true,
-        loginErrors: [],
-        signUpErrors: [],
+        loginErrors: undefined,
+        signUpErrors: undefined,
     } as LocalState);
 
-    const handleLogin = function () {
+    const handleLogin = () => {
+        setLoading(true);
+        let newState = state;
         ApiService.login({
             email: state.email,
             password: state.password,
@@ -123,11 +128,39 @@ export default function LandingPage() {
             reCaptcha: 'how are you',
         })
             .then((response: LoginResponse) => {
-                console.log('then', response);
+                console.log(response);
+                sendToastNotification(response.getErrorTitle(), 'error');
+                if (response.hasValidationErrors()) {
+                    newState = {
+                        ...newState,
+                        loginErrors: response.getValidationErrors(),
+                    };
+                    return;
+                }
+
+                if (response.isValid()) {
+                    sendToastNotification(t('Login successful!'), 'success');
+                }
             })
-            .catch((response: LoginResponse) => {
-                console.log('catch', response);
+            .finally(() => {
+                setState({
+                    ...newState,
+                    loading: false,
+                });
             });
+    };
+
+    const setLoading = (loading: boolean) => {
+        setState({ ...state, loading });
+    };
+
+    const sendToastNotification = (
+        message: string | undefined,
+        variant: VariantType,
+    ) => {
+        if (message !== undefined && message !== '') {
+            enqueueSnackbar(message, { variant });
+        }
     };
 
     return (
@@ -224,6 +257,14 @@ export default function LandingPage() {
                                         <TextField
                                             required
                                             fullWidth
+                                            error={state.signUpErrors?.has(
+                                                'firstName',
+                                            )}
+                                            helperText={
+                                                state.signUpErrors?.first(
+                                                    'firstName',
+                                                )?.message
+                                            }
                                             key="firstName"
                                             name="firstName"
                                             size="small"
@@ -242,6 +283,14 @@ export default function LandingPage() {
                                         <TextField
                                             required
                                             fullWidth
+                                            error={state.signUpErrors?.has(
+                                                'lastName',
+                                            )}
+                                            helperText={
+                                                state.signUpErrors?.first(
+                                                    'lastName',
+                                                )?.message
+                                            }
                                             size="small"
                                             key="lastName"
                                             name="lastName"
@@ -260,6 +309,14 @@ export default function LandingPage() {
                                         <TextField
                                             required
                                             fullWidth
+                                            error={state.signUpErrors?.has(
+                                                'email',
+                                            )}
+                                            helperText={
+                                                state.signUpErrors?.first(
+                                                    'email',
+                                                )?.message
+                                            }
                                             size="small"
                                             name="email"
                                             key="email"
@@ -277,6 +334,14 @@ export default function LandingPage() {
                                         <TextField
                                             required
                                             fullWidth
+                                            error={state.signUpErrors?.has(
+                                                'password',
+                                            )}
+                                            helperText={
+                                                state.signUpErrors?.first(
+                                                    'password',
+                                                )?.message
+                                            }
                                             size="small"
                                             name="password"
                                             key="password"
@@ -351,6 +416,14 @@ export default function LandingPage() {
                                         <TextField
                                             required
                                             fullWidth
+                                            error={state.loginErrors?.has(
+                                                'email',
+                                            )}
+                                            helperText={
+                                                state.loginErrors?.first(
+                                                    'email',
+                                                )?.message
+                                            }
                                             size="small"
                                             name="email"
                                             key="email"
@@ -368,6 +441,14 @@ export default function LandingPage() {
                                         <TextField
                                             required
                                             fullWidth
+                                            error={state.loginErrors?.has(
+                                                'password',
+                                            )}
+                                            helperText={
+                                                state.loginErrors?.first(
+                                                    'password',
+                                                )?.message
+                                            }
                                             size="small"
                                             name="password"
                                             key="password"
@@ -384,9 +465,7 @@ export default function LandingPage() {
                                                 });
                                             }}
                                         />
-
                                         <GoogleInvisibleCaptcha />
-
                                         <FormControlLabel
                                             control={
                                                 <Checkbox
@@ -409,7 +488,6 @@ export default function LandingPage() {
                                             }
                                             label={t('Remember Me')}
                                         />
-
                                         <Button
                                             fullWidth
                                             color="secondary"
@@ -417,11 +495,6 @@ export default function LandingPage() {
                                             disabled={state.loading}
                                             onClick={(event: MouseEvent) => {
                                                 event.preventDefault();
-                                                setState({
-                                                    ...state,
-                                                    loading: true,
-                                                });
-
                                                 handleLogin();
                                             }}
                                         >
