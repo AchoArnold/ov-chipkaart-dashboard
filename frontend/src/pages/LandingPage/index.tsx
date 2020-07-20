@@ -18,8 +18,12 @@ import useTheme from '@material-ui/core/styles/useTheme';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ApiService } from '../../serviceProvider';
 import { ValidationErrorMessageBag } from '../../domain/ValidationErrorMessageBag';
-import { LoginResponse } from '../../services/graphql/types';
+import {
+    CreateUserResponse,
+    LoginResponse,
+} from '../../services/graphql/types';
 import { VariantType, useSnackbar } from 'notistack';
+import { VARIANT_ERROR, VARIANT_SUCCESS } from '../../constants/errors';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -119,8 +123,7 @@ export default function LandingPage() {
     } as LocalState);
 
     const handleLogin = () => {
-        setLoading(true);
-        let newState = state;
+        let newState = beforeApiRequest();
         ApiService.login({
             email: state.email,
             password: state.password,
@@ -128,8 +131,7 @@ export default function LandingPage() {
             reCaptcha: 'how are you',
         })
             .then((response: LoginResponse) => {
-                console.log(response);
-                sendToastNotification(response.getErrorTitle(), 'error');
+                sendToastNotification(response.getErrorTitle(), VARIANT_ERROR);
                 if (response.hasValidationErrors()) {
                     newState = {
                         ...newState,
@@ -139,7 +141,10 @@ export default function LandingPage() {
                 }
 
                 if (response.isValid()) {
-                    sendToastNotification(t('Login successful!'), 'success');
+                    sendToastNotification(
+                        t('Login successful!'),
+                        VARIANT_SUCCESS,
+                    );
                 }
             })
             .finally(() => {
@@ -150,8 +155,51 @@ export default function LandingPage() {
             });
     };
 
-    const setLoading = (loading: boolean) => {
-        setState({ ...state, loading });
+    const handleSignUp = () => {
+        let newState = beforeApiRequest();
+        ApiService.signUp({
+            email: state.email,
+            password: state.password,
+            firstName: state.firstName,
+            lastName: state.lastName,
+            reCaptcha: 'how are you',
+        })
+            .then((response: CreateUserResponse) => {
+                sendToastNotification(response.getErrorTitle(), VARIANT_ERROR);
+                if (response.hasValidationErrors()) {
+                    newState = {
+                        ...newState,
+                        signUpErrors: response.getValidationErrors(),
+                    };
+                    return;
+                }
+
+                if (response.isValid()) {
+                    sendToastNotification(
+                        t('Sign up successful!'),
+                        VARIANT_SUCCESS,
+                    );
+                }
+            })
+            .finally(() => {
+                setState({
+                    ...newState,
+                    loading: false,
+                });
+            });
+    };
+
+    const beforeApiRequest = (): LocalState => {
+        let newState = {
+            ...state,
+            loginErrors: undefined,
+            signUpErrors: undefined,
+            loading: true,
+        };
+
+        setState(newState);
+
+        return newState;
     };
 
     const sendToastNotification = (
@@ -366,10 +414,7 @@ export default function LandingPage() {
                                             fullWidth
                                             onClick={(event: MouseEvent) => {
                                                 event.preventDefault();
-                                                setState({
-                                                    ...state,
-                                                    loading: true,
-                                                });
+                                                handleSignUp();
                                             }}
                                             color="secondary"
                                             variant="contained"

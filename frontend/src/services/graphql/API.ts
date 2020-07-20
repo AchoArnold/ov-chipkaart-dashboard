@@ -1,9 +1,9 @@
 import ApolloClient, { ApolloError } from 'apollo-client';
 import gql from 'graphql-tag';
 import { NormalizedCacheObject } from 'apollo-cache-inmemory';
-import { AuthOutput, LoginInput } from './generated';
+import { AuthOutput, CreateUserInput, LoginInput } from './generated';
 import { DocumentNode, GraphQLError } from 'graphql';
-import { ApiResponse, LoginResponse } from './types';
+import { ApiResponse, LoginResponse, CreateUserResponse } from './types';
 import { ValidationErrorMessageBag } from '../../domain/ValidationErrorMessageBag';
 import MessageBag from '../message-bag/MessageBag';
 import { ERROR_MESSAGE_INTERNAL_SERVER_ERROR } from '../../constants/errors';
@@ -15,6 +15,51 @@ class Api {
     client: ApolloClient<NormalizedCacheObject>;
     constructor(client: ApolloClient<NormalizedCacheObject>) {
         this.client = client;
+    }
+
+    async signUp(input: CreateUserInput): Promise<CreateUserResponse> {
+        const mutation: DocumentNode = gql`
+            mutation{
+                createUser(
+                    input:{
+                        firstName: "${input.firstName}",
+                        lastName: "${input.lastName}",
+                        email: "${input.email}",
+                        password: "${input.password}",
+                        reCaptcha: "${input.reCaptcha}",
+                    })
+                {
+                    user {
+                        id,
+                        firstName,
+                        lastName,
+                        email,
+                        createdAt,
+                        updatedAt,
+                    }
+                    token {
+                        value
+                    }
+                }
+            }
+        `;
+
+        return await this.client
+            .mutate({
+                mutation,
+            })
+            .then((data: any) => {
+                return new ApiResponse<AuthOutput>({
+                    data: data.data.login,
+                }) as CreateUserResponse;
+            })
+            .catch((error: ApolloError) => {
+                return new ApiResponse<AuthOutput>({
+                    errorTitle: this.extractMainError(error),
+                    validationErrors: this.mapErrorToMessageBag(error),
+                    data: undefined,
+                }) as CreateUserResponse;
+            });
     }
 
     async login(input: LoginInput): Promise<LoginResponse> {

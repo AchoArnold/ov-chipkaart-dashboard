@@ -63,3 +63,4 @@ export class ApiResponse<T> {
 }
 
 export type LoginResponse = ApiResponse<AuthOutput>;
+export type CreateUserResponse = ApiResponse<AuthOutput>;
