@@ -8,6 +8,7 @@ import './i18n';
 import ROUTE_NAMES from './constants/routes';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { SnackbarProvider } from 'notistack';
+import Dashboard from './pages/Dashboard';
 
 const theme = createMuiTheme({});
 
@@ -22,6 +23,11 @@ const routing = (
                         exact
                         path={ROUTE_NAMES.LANDING_PAGE}
                         component={LandingPage}
+                    />
+                    <Route
+                        exact
+                        path={ROUTE_NAMES.DASHBOARD}
+                        component={Dashboard}
                     />
                 </Switch>
             </Router>
