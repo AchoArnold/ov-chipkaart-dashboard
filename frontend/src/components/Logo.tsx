@@ -55,14 +55,14 @@ export default function Logo(props: LogoProps) {
     return (
         <Box
             className={
-                props.variant == 'small'
+                props.variant === 'small'
                     ? classes.containerSmall
                     : classes.container
             }
         >
             <span
                 className={
-                    props.variant == 'small'
+                    props.variant === 'small'
                         ? classes.suffixSmall
                         : classes.suffix
                 }
