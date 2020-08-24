@@ -33,7 +33,7 @@
     "react-google-recaptcha": "^2.0.1",
     "react-i18next": "^11.4.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "^3.4.1",
+    "react-scripts": "^3.4.3",
     "tailwindcss": "^1.4.6",
     "typescript": "~3.7.2"
   },
@@ -60,7 +60,7 @@
     ]
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "1.15.0",
+    "@graphql-codegen/cli": "^1.17.8",
     "@graphql-codegen/introspection": "1.15.0",
     "@graphql-codegen/typescript": "1.15.0",
     "@graphql-codegen/typescript-operations": "1.15.0",
