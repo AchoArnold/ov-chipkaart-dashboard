@@ -2,6 +2,22 @@
 
 package model
 
+import (
+	"github.com/99designs/gqlgen/graphql"
+)
+
+type AnalyzeRequest struct {
+	StartDate          string `json:"startDate"`
+	EndDate            string `json:"endDate"`
+	OvChipkaartNummber string `json:"ovChipkaartNummber"`
+	ID                 string `json:"id"`
+	Status             string `json:"status"`
+}
+
+type AnalzyeRequestDetails struct {
+	AnalyzeRequestID *string `json:"analyzeRequestId"`
+}
+
 type AuthOutput struct {
 	User  *User  `json:"user"`
 	Token *Token `json:"token"`
@@ -28,6 +44,15 @@ type LoginInput struct {
 
 type RefreshTokenInput struct {
 	Token string `json:"token"`
+}
+
+type StoreAnalyzeRequestInput struct {
+	OvChipkaartUsername *string         `json:"ovChipkaartUsername"`
+	OvChipkaartPassword *string         `json:"ovChipkaartPassword"`
+	TravelHistoryFile   *graphql.Upload `json:"travelHistoryFile"`
+	StartDate           string          `json:"startDate"`
+	EndDate             string          `json:"endDate"`
+	OvChipkaartNumber   string          `json:"ovChipkaartNumber"`
 }
 
 type Token struct {

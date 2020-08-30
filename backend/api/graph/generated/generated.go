@@ -43,6 +43,18 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AnalyzeRequest struct {
+		EndDate            func(childComplexity int) int
+		ID                 func(childComplexity int) int
+		OvChipkaartNummber func(childComplexity int) int
+		StartDate          func(childComplexity int) int
+		Status             func(childComplexity int) int
+	}
+
+	AnalzyeRequestDetails struct {
+		AnalyzeRequestID func(childComplexity int) int
+	}
+
 	AuthOutput struct {
 		Token func(childComplexity int) int
 		User  func(childComplexity int) int
@@ -53,10 +65,12 @@ type ComplexityRoot struct {
 		CreateUser   func(childComplexity int, input model.CreateUserInput) int
 		Login        func(childComplexity int, input model.LoginInput) int
 		RefreshToken func(childComplexity int, input model.RefreshTokenInput) int
+		StoreRequest func(childComplexity int, input *model.StoreAnalyzeRequestInput) int
 	}
 
 	Query struct {
-		User func(childComplexity int) int
+		AnalyzeRequests func(childComplexity int, skip *int, take *int, orderBy *string) int
+		User            func(childComplexity int) int
 	}
 
 	Token struct {
@@ -78,9 +92,11 @@ type MutationResolver interface {
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthOutput, error)
 	CancelToken(ctx context.Context, input model.CancelTokenInput) (bool, error)
 	RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error)
+	StoreRequest(ctx context.Context, input *model.StoreAnalyzeRequestInput) (bool, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context) (*model.User, error)
+	AnalyzeRequests(ctx context.Context, skip *int, take *int, orderBy *string) ([]*model.AnalzyeRequestDetails, error)
 }
 
 type executableSchema struct {
@@ -97,6 +113,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AnalyzeRequest.endDate":
+		if e.complexity.AnalyzeRequest.EndDate == nil {
+			break
+		}
+
+		return e.complexity.AnalyzeRequest.EndDate(childComplexity), true
+
+	case "AnalyzeRequest.id":
+		if e.complexity.AnalyzeRequest.ID == nil {
+			break
+		}
+
+		return e.complexity.AnalyzeRequest.ID(childComplexity), true
+
+	case "AnalyzeRequest.ovChipkaartNummber":
+		if e.complexity.AnalyzeRequest.OvChipkaartNummber == nil {
+			break
+		}
+
+		return e.complexity.AnalyzeRequest.OvChipkaartNummber(childComplexity), true
+
+	case "AnalyzeRequest.startDate":
+		if e.complexity.AnalyzeRequest.StartDate == nil {
+			break
+		}
+
+		return e.complexity.AnalyzeRequest.StartDate(childComplexity), true
+
+	case "AnalyzeRequest.status":
+		if e.complexity.AnalyzeRequest.Status == nil {
+			break
+		}
+
+		return e.complexity.AnalyzeRequest.Status(childComplexity), true
+
+	case "AnalzyeRequestDetails.analyzeRequestId":
+		if e.complexity.AnalzyeRequestDetails.AnalyzeRequestID == nil {
+			break
+		}
+
+		return e.complexity.AnalzyeRequestDetails.AnalyzeRequestID(childComplexity), true
 
 	case "AuthOutput.token":
 		if e.complexity.AuthOutput.Token == nil {
@@ -159,6 +217,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RefreshToken(childComplexity, args["input"].(model.RefreshTokenInput)), true
+
+	case "Mutation.storeRequest":
+		if e.complexity.Mutation.StoreRequest == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_storeRequest_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.StoreRequest(childComplexity, args["input"].(*model.StoreAnalyzeRequestInput)), true
+
+	case "Query.analyzeRequests":
+		if e.complexity.Query.AnalyzeRequests == nil {
+			break
+		}
+
+		args, err := ec.field_Query_analyzeRequests_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.AnalyzeRequests(childComplexity, args["skip"].(*int), args["take"].(*int), args["orderBy"].(*string)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -284,6 +366,9 @@ var sources = []*ast.Source{
 #
 # https://gqlgen.com/getting-started/
 
+"The ` + "`" + `UploadFile, // b.txt` + "`" + ` scalar type represents a multipart file upload."
+scalar Upload
+
 type User {
   id: ID!
   firstName:String!
@@ -297,10 +382,6 @@ type Token {
   value: String!
 }
 
-type Query {
-  user: User!
-}
-
 input CreateUserInput {
   firstName:String!
   lastName:String!
@@ -312,6 +393,18 @@ input CreateUserInput {
 type AuthOutput {
   user: User!
   token: Token!
+}
+
+type AnalyzeRequest {
+  startDate: String!
+  endDate: String!
+  ovChipkaartNummber: String!
+  id: String!
+  status: String!
+}
+
+type AnalzyeRequestDetails {
+  analyzeRequestId: String
 }
 
 input CancelTokenInput{
@@ -329,11 +422,28 @@ input LoginInput {
   reCaptcha: String!
 }
 
+input StoreAnalyzeRequestInput {
+  ovChipkaartUsername: String
+  ovChipkaartPassword: String
+  travelHistoryFile: Upload
+  startDate: String!
+  endDate: String!
+  ovChipkaartNumber: String!
+}
+
+"The ` + "`" + `Query` + "`" + ` type, represents all of the entry points into our object graph."
+type Query {
+  user: User!
+  analyzeRequests(skip: Int, take: Int, orderBy: String): [AnalzyeRequestDetails!]!
+}
+
+"The ` + "`" + `Mutation` + "`" + ` type, represents all updates we can make to our data."
 type Mutation {
   createUser(input: CreateUserInput!): AuthOutput!
   login(input: LoginInput!): AuthOutput!
   cancelToken(input: CancelTokenInput!): Boolean!
   refreshToken(input: RefreshTokenInput!): String!
+  storeRequest(input: StoreAnalyzeRequestInput): Boolean!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -398,6 +508,20 @@ func (ec *executionContext) field_Mutation_refreshToken_args(ctx context.Context
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_storeRequest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.StoreAnalyzeRequestInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalOStoreAnalyzeRequestInput2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -409,6 +533,36 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_analyzeRequests_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["skip"]; ok {
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["skip"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["take"]; ok {
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["take"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["orderBy"]; ok {
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderBy"] = arg2
 	return args, nil
 }
 
@@ -447,6 +601,207 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AnalyzeRequest_startDate(ctx context.Context, field graphql.CollectedField, obj *model.AnalyzeRequest) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "AnalyzeRequest",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AnalyzeRequest_endDate(ctx context.Context, field graphql.CollectedField, obj *model.AnalyzeRequest) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "AnalyzeRequest",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EndDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AnalyzeRequest_ovChipkaartNummber(ctx context.Context, field graphql.CollectedField, obj *model.AnalyzeRequest) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "AnalyzeRequest",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OvChipkaartNummber, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AnalyzeRequest_id(ctx context.Context, field graphql.CollectedField, obj *model.AnalyzeRequest) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "AnalyzeRequest",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AnalyzeRequest_status(ctx context.Context, field graphql.CollectedField, obj *model.AnalyzeRequest) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "AnalyzeRequest",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AnalzyeRequestDetails_analyzeRequestId(ctx context.Context, field graphql.CollectedField, obj *model.AnalzyeRequestDetails) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "AnalzyeRequestDetails",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AnalyzeRequestID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _AuthOutput_user(ctx context.Context, field graphql.CollectedField, obj *model.AuthOutput) (ret graphql.Marshaler) {
 	defer func() {
@@ -680,6 +1035,47 @@ func (ec *executionContext) _Mutation_refreshToken(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_storeRequest(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_storeRequest_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().StoreRequest(rctx, args["input"].(*model.StoreAnalyzeRequestInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -712,6 +1108,47 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	res := resTmp.(*model.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_analyzeRequests(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_analyzeRequests_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AnalyzeRequests(rctx, args["skip"].(*int), args["take"].(*int), args["orderBy"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.AnalzyeRequestDetails)
+	fc.Result = res
+	return ec.marshalNAnalzyeRequestDetails2ᚕᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetailsᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2190,6 +2627,54 @@ func (ec *executionContext) unmarshalInputRefreshTokenInput(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputStoreAnalyzeRequestInput(ctx context.Context, obj interface{}) (model.StoreAnalyzeRequestInput, error) {
+	var it model.StoreAnalyzeRequestInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "ovChipkaartUsername":
+			var err error
+			it.OvChipkaartUsername, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "ovChipkaartPassword":
+			var err error
+			it.OvChipkaartPassword, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "travelHistoryFile":
+			var err error
+			it.TravelHistoryFile, err = ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "startDate":
+			var err error
+			it.StartDate, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "endDate":
+			var err error
+			it.EndDate, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "ovChipkaartNumber":
+			var err error
+			it.OvChipkaartNumber, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2197,6 +2682,77 @@ func (ec *executionContext) unmarshalInputRefreshTokenInput(ctx context.Context,
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var analyzeRequestImplementors = []string{"AnalyzeRequest"}
+
+func (ec *executionContext) _AnalyzeRequest(ctx context.Context, sel ast.SelectionSet, obj *model.AnalyzeRequest) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, analyzeRequestImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AnalyzeRequest")
+		case "startDate":
+			out.Values[i] = ec._AnalyzeRequest_startDate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "endDate":
+			out.Values[i] = ec._AnalyzeRequest_endDate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "ovChipkaartNummber":
+			out.Values[i] = ec._AnalyzeRequest_ovChipkaartNummber(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "id":
+			out.Values[i] = ec._AnalyzeRequest_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "status":
+			out.Values[i] = ec._AnalyzeRequest_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var analzyeRequestDetailsImplementors = []string{"AnalzyeRequestDetails"}
+
+func (ec *executionContext) _AnalzyeRequestDetails(ctx context.Context, sel ast.SelectionSet, obj *model.AnalzyeRequestDetails) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, analzyeRequestDetailsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AnalzyeRequestDetails")
+		case "analyzeRequestId":
+			out.Values[i] = ec._AnalzyeRequestDetails_analyzeRequestId(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
 
 var authOutputImplementors = []string{"AuthOutput"}
 
@@ -2265,6 +2821,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "storeRequest":
+			out.Values[i] = ec._Mutation_storeRequest(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2300,6 +2861,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_user(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "analyzeRequests":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_analyzeRequests(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -2643,6 +3218,57 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) marshalNAnalzyeRequestDetails2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetails(ctx context.Context, sel ast.SelectionSet, v model.AnalzyeRequestDetails) graphql.Marshaler {
+	return ec._AnalzyeRequestDetails(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAnalzyeRequestDetails2ᚕᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetailsᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AnalzyeRequestDetails) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAnalzyeRequestDetails2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetails(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNAnalzyeRequestDetails2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetails(ctx context.Context, sel ast.SelectionSet, v *model.AnalzyeRequestDetails) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._AnalzyeRequestDetails(ctx, sel, v)
+}
 
 func (ec *executionContext) marshalNAuthOutput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAuthOutput(ctx context.Context, sel ast.SelectionSet, v model.AuthOutput) graphql.Marshaler {
 	return ec._AuthOutput(ctx, sel, &v)
@@ -2993,6 +3619,41 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
 }
 
+func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
+	return graphql.UnmarshalInt(v)
+}
+
+func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	return graphql.MarshalInt(v)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOInt2int(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.marshalOInt2int(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalOStoreAnalyzeRequestInput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx context.Context, v interface{}) (model.StoreAnalyzeRequestInput, error) {
+	return ec.unmarshalInputStoreAnalyzeRequestInput(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOStoreAnalyzeRequestInput2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx context.Context, v interface{}) (*model.StoreAnalyzeRequestInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOStoreAnalyzeRequestInput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx, v)
+	return &res, err
+}
+
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
 	return graphql.UnmarshalString(v)
 }
@@ -3014,6 +3675,29 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return ec.marshalOString2string(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalOUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, v interface{}) (graphql.Upload, error) {
+	return graphql.UnmarshalUpload(v)
+}
+
+func (ec *executionContext) marshalOUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, sel ast.SelectionSet, v graphql.Upload) graphql.Marshaler {
+	return graphql.MarshalUpload(v)
+}
+
+func (ec *executionContext) unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, v interface{}) (*graphql.Upload, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, sel ast.SelectionSet, v *graphql.Upload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.marshalOUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, sel, *v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

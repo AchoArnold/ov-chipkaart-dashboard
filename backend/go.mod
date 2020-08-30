@@ -1,4 +1,4 @@
-module github.com/NdoleStudio/ov-chipkaart-dashboard/backend
+module github.com/AchoArnold/ov-chipkaart-dashboard/backend
 
 go 1.14
 
