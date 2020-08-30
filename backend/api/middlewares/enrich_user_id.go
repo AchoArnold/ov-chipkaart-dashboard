@@ -7,7 +7,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/services/jwt"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/services/jwt"
 )
 
 // EnrichUserID adds the user id to the context

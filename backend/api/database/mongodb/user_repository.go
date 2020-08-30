@@ -3,9 +3,9 @@ package mongodb
 import (
 	"context"
 
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/database"
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/entities"
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/shared/id"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/entities"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

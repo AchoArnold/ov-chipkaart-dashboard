@@ -8,14 +8,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/database"
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/entities"
-	internalErrors "github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/errors"
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/graph/generated"
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/graph/model"
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/graph/validator"
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/shared/id"
-	internalTime "github.com/NdoleStudio/ov-chipkaart-dashboard/backend/shared/time"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/entities"
+	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/errors"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/generated"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
+	internalTime "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/time"
 	pkgErrors "github.com/pkg/errors"
 )
 

@@ -1,6 +1,6 @@
 package middlewares
 
-import internalContext "github.com/NdoleStudio/ov-chipkaart-dashboard/backend/shared/context"
+import internalContext "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/context"
 
 const (
 	// ContextKeyUserID is the get to fetch the user id from the context

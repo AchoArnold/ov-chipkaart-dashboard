@@ -5,9 +5,9 @@ import (
 	"runtime/debug"
 	"time"
 
-	internalTime "github.com/NdoleStudio/ov-chipkaart-dashboard/backend/shared/time"
+	internalTime "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/time"
 
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/shared/logger"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/logger"
 )
 
 // responseWriter is a minimal wrapper for http.ResponseWriter that allows the

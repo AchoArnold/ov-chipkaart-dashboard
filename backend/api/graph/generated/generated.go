@@ -12,7 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/graph/model"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -457,7 +457,7 @@ func (ec *executionContext) field_Mutation_cancelToken_args(ctx context.Context,
 	args := map[string]interface{}{}
 	var arg0 model.CancelTokenInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNCancelTokenInput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐCancelTokenInput(ctx, tmp)
+		arg0, err = ec.unmarshalNCancelTokenInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐCancelTokenInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -471,7 +471,7 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 	args := map[string]interface{}{}
 	var arg0 model.CreateUserInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNCreateUserInput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐCreateUserInput(ctx, tmp)
+		arg0, err = ec.unmarshalNCreateUserInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐCreateUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -485,7 +485,7 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 	args := map[string]interface{}{}
 	var arg0 model.LoginInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNLoginInput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐLoginInput(ctx, tmp)
+		arg0, err = ec.unmarshalNLoginInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐLoginInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -499,7 +499,7 @@ func (ec *executionContext) field_Mutation_refreshToken_args(ctx context.Context
 	args := map[string]interface{}{}
 	var arg0 model.RefreshTokenInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNRefreshTokenInput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐRefreshTokenInput(ctx, tmp)
+		arg0, err = ec.unmarshalNRefreshTokenInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐRefreshTokenInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -513,7 +513,7 @@ func (ec *executionContext) field_Mutation_storeRequest_args(ctx context.Context
 	args := map[string]interface{}{}
 	var arg0 *model.StoreAnalyzeRequestInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalOStoreAnalyzeRequestInput2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx, tmp)
+		arg0, err = ec.unmarshalOStoreAnalyzeRequestInput2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -834,7 +834,7 @@ func (ec *executionContext) _AuthOutput_user(ctx context.Context, field graphql.
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _AuthOutput_token(ctx context.Context, field graphql.CollectedField, obj *model.AuthOutput) (ret graphql.Marshaler) {
@@ -868,7 +868,7 @@ func (ec *executionContext) _AuthOutput_token(ctx context.Context, field graphql
 	}
 	res := resTmp.(*model.Token)
 	fc.Result = res
-	return ec.marshalNToken2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐToken(ctx, field.Selections, res)
+	return ec.marshalNToken2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐToken(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -909,7 +909,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	}
 	res := resTmp.(*model.AuthOutput)
 	fc.Result = res
-	return ec.marshalNAuthOutput2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAuthOutput(ctx, field.Selections, res)
+	return ec.marshalNAuthOutput2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAuthOutput(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -950,7 +950,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*model.AuthOutput)
 	fc.Result = res
-	return ec.marshalNAuthOutput2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAuthOutput(ctx, field.Selections, res)
+	return ec.marshalNAuthOutput2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAuthOutput(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_cancelToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1107,7 +1107,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_analyzeRequests(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1148,7 +1148,7 @@ func (ec *executionContext) _Query_analyzeRequests(ctx context.Context, field gr
 	}
 	res := resTmp.([]*model.AnalzyeRequestDetails)
 	fc.Result = res
-	return ec.marshalNAnalzyeRequestDetails2ᚕᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetailsᚄ(ctx, field.Selections, res)
+	return ec.marshalNAnalzyeRequestDetails2ᚕᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetailsᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3219,11 +3219,11 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNAnalzyeRequestDetails2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetails(ctx context.Context, sel ast.SelectionSet, v model.AnalzyeRequestDetails) graphql.Marshaler {
+func (ec *executionContext) marshalNAnalzyeRequestDetails2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetails(ctx context.Context, sel ast.SelectionSet, v model.AnalzyeRequestDetails) graphql.Marshaler {
 	return ec._AnalzyeRequestDetails(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAnalzyeRequestDetails2ᚕᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetailsᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AnalzyeRequestDetails) graphql.Marshaler {
+func (ec *executionContext) marshalNAnalzyeRequestDetails2ᚕᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetailsᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AnalzyeRequestDetails) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3247,7 +3247,7 @@ func (ec *executionContext) marshalNAnalzyeRequestDetails2ᚕᚖgithubᚗcomᚋN
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAnalzyeRequestDetails2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetails(ctx, sel, v[i])
+			ret[i] = ec.marshalNAnalzyeRequestDetails2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetails(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3260,7 +3260,7 @@ func (ec *executionContext) marshalNAnalzyeRequestDetails2ᚕᚖgithubᚗcomᚋN
 	return ret
 }
 
-func (ec *executionContext) marshalNAnalzyeRequestDetails2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetails(ctx context.Context, sel ast.SelectionSet, v *model.AnalzyeRequestDetails) graphql.Marshaler {
+func (ec *executionContext) marshalNAnalzyeRequestDetails2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAnalzyeRequestDetails(ctx context.Context, sel ast.SelectionSet, v *model.AnalzyeRequestDetails) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3270,11 +3270,11 @@ func (ec *executionContext) marshalNAnalzyeRequestDetails2ᚖgithubᚗcomᚋNdol
 	return ec._AnalzyeRequestDetails(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNAuthOutput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAuthOutput(ctx context.Context, sel ast.SelectionSet, v model.AuthOutput) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthOutput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAuthOutput(ctx context.Context, sel ast.SelectionSet, v model.AuthOutput) graphql.Marshaler {
 	return ec._AuthOutput(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuthOutput2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAuthOutput(ctx context.Context, sel ast.SelectionSet, v *model.AuthOutput) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthOutput2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐAuthOutput(ctx context.Context, sel ast.SelectionSet, v *model.AuthOutput) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3298,11 +3298,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNCancelTokenInput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐCancelTokenInput(ctx context.Context, v interface{}) (model.CancelTokenInput, error) {
+func (ec *executionContext) unmarshalNCancelTokenInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐCancelTokenInput(ctx context.Context, v interface{}) (model.CancelTokenInput, error) {
 	return ec.unmarshalInputCancelTokenInput(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNCreateUserInput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐCreateUserInput(ctx context.Context, v interface{}) (model.CreateUserInput, error) {
+func (ec *executionContext) unmarshalNCreateUserInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐCreateUserInput(ctx context.Context, v interface{}) (model.CreateUserInput, error) {
 	return ec.unmarshalInputCreateUserInput(ctx, v)
 }
 
@@ -3320,11 +3320,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (model.LoginInput, error) {
+func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (model.LoginInput, error) {
 	return ec.unmarshalInputLoginInput(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNRefreshTokenInput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐRefreshTokenInput(ctx context.Context, v interface{}) (model.RefreshTokenInput, error) {
+func (ec *executionContext) unmarshalNRefreshTokenInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐRefreshTokenInput(ctx context.Context, v interface{}) (model.RefreshTokenInput, error) {
 	return ec.unmarshalInputRefreshTokenInput(ctx, v)
 }
 
@@ -3342,11 +3342,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNToken2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐToken(ctx context.Context, sel ast.SelectionSet, v model.Token) graphql.Marshaler {
+func (ec *executionContext) marshalNToken2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐToken(ctx context.Context, sel ast.SelectionSet, v model.Token) graphql.Marshaler {
 	return ec._Token(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNToken2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐToken(ctx context.Context, sel ast.SelectionSet, v *model.Token) graphql.Marshaler {
+func (ec *executionContext) marshalNToken2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐToken(ctx context.Context, sel ast.SelectionSet, v *model.Token) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3356,11 +3356,11 @@ func (ec *executionContext) marshalNToken2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑc
 	return ec._Token(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3642,15 +3642,15 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return ec.marshalOInt2int(ctx, sel, *v)
 }
 
-func (ec *executionContext) unmarshalOStoreAnalyzeRequestInput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx context.Context, v interface{}) (model.StoreAnalyzeRequestInput, error) {
+func (ec *executionContext) unmarshalOStoreAnalyzeRequestInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx context.Context, v interface{}) (model.StoreAnalyzeRequestInput, error) {
 	return ec.unmarshalInputStoreAnalyzeRequestInput(ctx, v)
 }
 
-func (ec *executionContext) unmarshalOStoreAnalyzeRequestInput2ᚖgithubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx context.Context, v interface{}) (*model.StoreAnalyzeRequestInput, error) {
+func (ec *executionContext) unmarshalOStoreAnalyzeRequestInput2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx context.Context, v interface{}) (*model.StoreAnalyzeRequestInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalOStoreAnalyzeRequestInput2githubᚗcomᚋNdoleStudioᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx, v)
+	res, err := ec.unmarshalOStoreAnalyzeRequestInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx, v)
 	return &res, err
 }
 

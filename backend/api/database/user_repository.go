@@ -1,8 +1,8 @@
 package database
 
 import (
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/entities"
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/shared/id"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/entities"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
 )
 
 // UserRepository is an instance of the user repository

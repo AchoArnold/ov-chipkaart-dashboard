@@ -3,9 +3,9 @@ package jwt
 import (
 	"time"
 
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/shared/id"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
 
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/cache"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/cache"
 	"github.com/pkg/errors"
 
 	"github.com/dgrijalva/jwt-go"

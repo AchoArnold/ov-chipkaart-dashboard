@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/database"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

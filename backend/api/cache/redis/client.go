@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/api/cache"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/cache"
 	"github.com/go-redis/redis/v8"
 )
 

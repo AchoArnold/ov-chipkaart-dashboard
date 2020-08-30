@@ -3,7 +3,7 @@ package entities
 import (
 	"time"
 
-	"github.com/NdoleStudio/ov-chipkaart-dashboard/backend/shared/id"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
 )
 
 // User is the user entity
