@@ -40,7 +40,7 @@ type AnalyzeRequest {
 }
 
 type AnalzyeRequestDetails {
-  analyzeRequestId: String
+  analyzeRequestId: String!
 }
 
 input CancelTokenInput{

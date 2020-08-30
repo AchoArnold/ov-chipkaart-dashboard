@@ -404,7 +404,7 @@ type AnalyzeRequest {
 }
 
 type AnalzyeRequestDetails {
-  analyzeRequestId: String
+  analyzeRequestId: String!
 }
 
 input CancelTokenInput{
@@ -796,11 +796,14 @@ func (ec *executionContext) _AnalzyeRequestDetails_analyzeRequestId(ctx context.
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _AuthOutput_user(ctx context.Context, field graphql.CollectedField, obj *model.AuthOutput) (ret graphql.Marshaler) {
@@ -2743,6 +2746,9 @@ func (ec *executionContext) _AnalzyeRequestDetails(ctx context.Context, sel ast.
 			out.Values[i] = graphql.MarshalString("AnalzyeRequestDetails")
 		case "analyzeRequestId":
 			out.Values[i] = ec._AnalzyeRequestDetails_analyzeRequestId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

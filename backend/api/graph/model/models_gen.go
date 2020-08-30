@@ -15,7 +15,7 @@ type AnalyzeRequest struct {
 }
 
 type AnalzyeRequestDetails struct {
-	AnalyzeRequestID *string `json:"analyzeRequestId"`
+	AnalyzeRequestID string `json:"analyzeRequestId"`
 }
 
 type AuthOutput struct {
