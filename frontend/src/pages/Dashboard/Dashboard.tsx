@@ -1,23 +1,39 @@
-import React from 'react';
+import React, { MouseEvent, useRef, useState } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
 import LogoutIcon from '@material-ui/icons/ExitToApp';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import Logo from '../../components/Logo';
 import useTheme from '@material-ui/core/styles/useTheme';
 import { Box } from '@material-ui/core';
+import ROUTE_NAMES from '../../constants/routes';
+import { Link } from 'react-router-dom';
+import AssessmentIcon from '@material-ui/icons/Assessment';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { useTranslation } from 'react-i18next';
+import { ValidationErrorMessageBag } from '../../domain/ValidationErrorMessageBag';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import InputLabel from '@material-ui/core/InputLabel';
+import Typography from '@material-ui/core/Typography';
+import TableHead from '@material-ui/core/TableHead';
+import Table from '@material-ui/core/Table';
+import TableCell from '@material-ui/core/TableCell';
+import TableBody from '@material-ui/core/TableBody';
+import TableRow from '@material-ui/core/TableRow';
 
 const drawerWidth = 240;
 
@@ -52,12 +68,118 @@ const useStyles = makeStyles((theme: Theme) =>
         appBarLogo: {
             flexGrow: 1,
         },
+        logo: {
+            textDecoration: 'none',
+        },
+        form: {
+            width: '100%',
+            maxWidth: 600,
+            margin: '0 auto',
+            marginTop: theme.spacing(4),
+        },
+
+        recentRequests: {
+            marginTop: theme.spacing(4),
+            width: '100%',
+            maxWidth: 1080,
+            margin: '0 auto',
+        },
+
+        formContents: {
+            '& > *': {
+                marginBottom: theme.spacing(2),
+            },
+        },
+
+        loadingSpinner: {
+            color: theme.palette.secondary.main,
+            position: 'absolute',
+            left: '50%',
+            marginTop: 5,
+            marginLeft: -12,
+        },
+
+        fileInputLabel: {
+            '& legend': {
+                width: '200px !important',
+            },
+
+            '& label': {
+                marginBottom: -8,
+                fontSize: 12,
+                paddingLeft: 12,
+            },
+        },
+
+        gap1: {
+            gap: theme.spacing(1) + 'px',
+        },
+
+        buttonContainer: {
+            position: 'relative',
+        },
+
+        table: {
+            marginTop: theme.spacing(2),
+            '& thead th': {
+                fontWeight: 'bold',
+            },
+        },
+
+        noItemCell: {
+            textAlign: 'center !important' as 'center',
+            border: 'none',
+        },
     }),
 );
 
-export default function ClippedDrawer() {
+interface DashboardState {
+    OvChipkaartUsername: string;
+    OvChipkaartPassword: string;
+    OvChipkaartFile?: File;
+    OvChipkaartCardNumber: string;
+    uploadTravelHistory: boolean;
+    StartDate?: string;
+    EndDate?: string;
+    Loading: boolean;
+    Errors?: ValidationErrorMessageBag;
+    requestRows: Array<Request>;
+}
+
+interface Request {
+    startDate: string;
+    endDate: string;
+    requestId: string;
+    status: 'processing' | 'error' | 'done';
+    createdAt: string;
+    cardNumber: string;
+}
+
+export default function Dashboard() {
     const classes = useStyles();
     const theme = useTheme();
+    const { t } = useTranslation();
+    const refFileInput = useRef(null);
+
+    const [state, setState] = useState({
+        OvChipkaartUsername: '',
+        OvChipkaartPassword: '',
+        OvChipkaartFile: undefined,
+        OvChipkaartCardNumber: '',
+        StartDate: undefined,
+        EndDate: undefined,
+        uploadTravelHistory: false,
+        Loading: false,
+        requestRows: [],
+        Errors: undefined,
+    } as DashboardState);
+
+    const handleNewRequest = () => {
+        setState({
+            ...state,
+            Loading: true,
+        });
+    };
 
     return (
         <div className={classes.root}>
@@ -65,10 +187,15 @@ export default function ClippedDrawer() {
             <AppBar position="fixed" className={classes.appBar}>
                 <Toolbar>
                     <Box className={classes.appBarLogo}>
-                        <Logo
-                            variant="small"
-                            backgroundColor={theme.palette.primary.dark}
-                        />
+                        <Link
+                            className={classes.logo}
+                            to={ROUTE_NAMES.LANDING_PAGE}
+                        >
+                            <Logo
+                                variant="small"
+                                backgroundColor={theme.palette.primary.dark}
+                            />
+                        </Link>
                     </Box>
                     <Tooltip title="Logout">
                         <IconButton color="inherit" aria-label="logout">
@@ -87,73 +214,307 @@ export default function ClippedDrawer() {
                 <Toolbar />
                 <div className={classes.drawerContainer}>
                     <List>
-                        {['Inbox', 'Starred', 'Send email', 'Drafts'].map(
-                            (text, index) => (
-                                <ListItem button key={text}>
-                                    <ListItemIcon>
-                                        {index % 2 === 0 ? (
-                                            <InboxIcon />
-                                        ) : (
-                                            <MailIcon />
-                                        )}
-                                    </ListItemIcon>
-                                    <ListItemText primary={text} />
-                                </ListItem>
-                            ),
-                        )}
-                    </List>
-                    <Divider />
-                    <List>
-                        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                            <ListItem button key={text}>
-                                <ListItemIcon>
-                                    {index % 2 === 0 ? (
-                                        <InboxIcon />
-                                    ) : (
-                                        <MailIcon />
-                                    )}
-                                </ListItemIcon>
-                                <ListItemText primary={text} />
-                            </ListItem>
-                        ))}
+                        <ListItem button key="Analyze">
+                            <ListItemIcon>
+                                <AssessmentIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Analyze" />
+                        </ListItem>
                     </List>
                 </div>
             </Drawer>
             <main className={classes.content}>
                 <Toolbar />
-                <Typography paragraph>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Rhoncus dolor purus non enim praesent elementum
-                    facilisis leo vel. Risus at ultrices mi tempus imperdiet.
-                    Semper risus in hendrerit gravida rutrum quisque non tellus.
-                    Convallis convallis tellus id interdum velit laoreet id
-                    donec ultrices. Odio morbi quis commodo odio aenean sed
-                    adipiscing. Amet nisl suscipit adipiscing bibendum est
-                    ultricies integer quis. Cursus euismod quis viverra nibh
-                    cras. Metus vulputate eu scelerisque felis imperdiet proin
-                    fermentum leo. Mauris commodo quis imperdiet massa
-                    tincidunt. Cras tincidunt lobortis feugiat vivamus at augue.
-                    At augue eget arcu dictum varius duis at consectetur lorem.
-                    Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-                    sapien faucibus et molestie ac.
-                </Typography>
-                <Typography paragraph>
-                    Consequat mauris nunc congue nisi vitae suscipit. Fringilla
-                    est ullamcorper eget nulla facilisi etiam dignissim diam.
-                    Pulvinar elementum integer enim neque volutpat ac tincidunt.
-                    Ornare suspendisse sed nisi lacus sed viverra tellus. Purus
-                    sit amet volutpat consequat mauris. Elementum eu facilisis
-                    sed odio morbi. Euismod lacinia at quis risus sed vulputate
-                    odio. Morbi tincidunt ornare massa eget egestas purus
-                    viverra accumsan in. In hendrerit gravida rutrum quisque non
-                    tellus orci ac. Pellentesque nec nam aliquam sem et tortor.
-                    Habitant morbi tristique senectus et. Adipiscing elit duis
-                    tristique sollicitudin nibh sit. Ornare aenean euismod
-                    elementum nisi quis eleifend. Commodo viverra maecenas
-                    accumsan lacus vel facilisis. Nulla posuere sollicitudin
-                    aliquam ultrices sagittis orci a.
-                </Typography>
+                <Box width="100%">
+                    <form autoComplete="off">
+                        <Card className={classes.form} variant="outlined">
+                            <CardContent className={classes.formContents}>
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            disabled={state.Loading}
+                                            checked={state.uploadTravelHistory}
+                                            onChange={(
+                                                event: React.ChangeEvent<
+                                                    HTMLInputElement
+                                                >,
+                                            ) => {
+                                                setState({
+                                                    ...state,
+                                                    uploadTravelHistory:
+                                                        event.target.checked,
+                                                });
+                                            }}
+                                            color="primary"
+                                        />
+                                    }
+                                    label={t('Upload travel history CSV file')}
+                                />
+                                {state.uploadTravelHistory && (
+                                    <div className={classes.fileInputLabel}>
+                                        <div>
+                                            <InputLabel>
+                                                {t(
+                                                    'OV Chipkaart Travel History CSV *',
+                                                )}
+                                            </InputLabel>
+                                        </div>
+                                        <OutlinedInput
+                                            fullWidth
+                                            required
+                                            type="file"
+                                            ref={refFileInput}
+                                            inputProps={{ accept: 'text/csv' }}
+                                            key="travel-history-csv"
+                                            autoComplete="off"
+                                            margin="dense"
+                                            disabled={state.Loading}
+                                            labelWidth={200}
+                                            onChange={() => {
+                                                setState({
+                                                    ...state,
+                                                    // @ts-ignore
+                                                    OvChipkaartFile: refFileInput.current.getElementsByTagName(
+                                                        'input',
+                                                    )[0].files[0],
+                                                });
+                                            }}
+                                        />
+                                    </div>
+                                )}
+                                {!state.uploadTravelHistory && (
+                                    <TextField
+                                        disabled={state.Loading}
+                                        required
+                                        fullWidth
+                                        error={state.Errors?.has(
+                                            'ov-chipkaart-username',
+                                        )}
+                                        helperText={
+                                            state.Errors?.first(
+                                                'ov-chipkaart-username',
+                                            )?.message
+                                        }
+                                        size="small"
+                                        key="ov-chipkaart-username"
+                                        label={t('OV Chipkaart Username')}
+                                        autoComplete="off"
+                                        variant="outlined"
+                                        value={state.OvChipkaartUsername}
+                                        onChange={(event: any) => {
+                                            setState({
+                                                ...state,
+                                                OvChipkaartUsername:
+                                                    event.target.value,
+                                            });
+                                        }}
+                                    />
+                                )}
+                                {!state.uploadTravelHistory && (
+                                    <TextField
+                                        disabled={state.Loading}
+                                        required
+                                        fullWidth
+                                        error={state.Errors?.has(
+                                            'ov-chipkaart-password',
+                                        )}
+                                        helperText={
+                                            state.Errors?.first(
+                                                'ov-chipkaart-password',
+                                            )?.message
+                                        }
+                                        size="small"
+                                        type="password"
+                                        key="ov-chipkaart-password"
+                                        label={t('OV Chipkaart Password')}
+                                        autoComplete="off"
+                                        variant="outlined"
+                                        value={state.OvChipkaartPassword}
+                                        onChange={(event: any) => {
+                                            setState({
+                                                ...state,
+                                                OvChipkaartPassword:
+                                                    event.target.value,
+                                            });
+                                        }}
+                                    />
+                                )}
+
+                                <TextField
+                                    required
+                                    fullWidth
+                                    error={state.Errors?.has(
+                                        'ov-chipkaart-number',
+                                    )}
+                                    helperText={
+                                        state.Errors?.first(
+                                            'ov-chipkaart-number',
+                                        )?.message
+                                    }
+                                    size="small"
+                                    key="ov-chipkaart-card-number"
+                                    label={t('OV Chipkaart Number')}
+                                    autoComplete="off"
+                                    variant="outlined"
+                                    disabled={state.Loading}
+                                    value={state.OvChipkaartCardNumber}
+                                    onChange={(event: any) => {
+                                        setState({
+                                            ...state,
+                                            OvChipkaartCardNumber:
+                                                event.target.value,
+                                        });
+                                    }}
+                                />
+
+                                <Box display="flex" className={classes.gap1}>
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        error={state.Errors?.has('start-date')}
+                                        helperText={
+                                            state.Errors?.first('start-date')
+                                                ?.message
+                                        }
+                                        type="date"
+                                        size="small"
+                                        key="start-date"
+                                        label={t('Start Date')}
+                                        autoComplete="off"
+                                        variant="outlined"
+                                        disabled={state.Loading}
+                                        defaultValue={state.StartDate}
+                                        onChange={(event: any) => {
+                                            setState({
+                                                ...state,
+                                                StartDate: event.target.value,
+                                            });
+                                        }}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                    />
+
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        disabled={state.Loading}
+                                        error={state.Errors?.has('end-date')}
+                                        helperText={
+                                            state.Errors?.first('end-date')
+                                                ?.message
+                                        }
+                                        type="date"
+                                        size="small"
+                                        key="end-date"
+                                        label={t('End Date')}
+                                        autoComplete="off"
+                                        variant="outlined"
+                                        defaultValue={state.EndDate}
+                                        onChange={(event: any) => {
+                                            setState({
+                                                ...state,
+                                                EndDate: event.target.value,
+                                            });
+                                        }}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                    />
+                                </Box>
+
+                                <div className={classes.buttonContainer}>
+                                    <Button
+                                        fullWidth
+                                        color="secondary"
+                                        variant="contained"
+                                        disabled={state.Loading}
+                                        onClick={(event: MouseEvent) => {
+                                            event.preventDefault();
+                                            handleNewRequest();
+                                        }}
+                                    >
+                                        {t('Analyze')}
+                                    </Button>
+                                    {state.Loading && (
+                                        <CircularProgress
+                                            size={24}
+                                            className={classes.loadingSpinner}
+                                        />
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </form>
+
+                    <Card className={classes.recentRequests}>
+                        <CardContent>
+                            <Typography variant="h4">
+                                Recent Requests
+                            </Typography>
+
+                            <Table className={classes.table}>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>{t('Created On')}</TableCell>
+                                        <TableCell align="right">
+                                            {t('Card Number')}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            {t('Start Date')}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            {t('End Date')}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            {t('Status')}
+                                        </TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {state.requestRows.length === 0 && (
+                                        <TableRow>
+                                            <TableCell
+                                                colSpan={5}
+                                                align="center"
+                                                className={classes.noItemCell}
+                                            >
+                                                <Typography variant="h6">
+                                                    No Request available
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                    {state.requestRows.map((row: Request) => (
+                                        <TableRow
+                                            hover={true}
+                                            key={row.requestId}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                            >
+                                                {row.createdAt}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {row.cardNumber}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {row.startDate}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {row.endDate}
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                {row.status}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                </Box>
             </main>
         </div>
     );
