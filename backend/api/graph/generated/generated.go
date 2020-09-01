@@ -61,11 +61,11 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CancelToken  func(childComplexity int, input model.CancelTokenInput) int
-		CreateUser   func(childComplexity int, input model.CreateUserInput) int
-		Login        func(childComplexity int, input model.LoginInput) int
-		RefreshToken func(childComplexity int, input model.RefreshTokenInput) int
-		StoreRequest func(childComplexity int, input *model.StoreAnalyzeRequestInput) int
+		CancelToken         func(childComplexity int, input model.CancelTokenInput) int
+		CreateUser          func(childComplexity int, input model.CreateUserInput) int
+		Login               func(childComplexity int, input model.LoginInput) int
+		RefreshToken        func(childComplexity int, input model.RefreshTokenInput) int
+		StoreAnalyzeRequest func(childComplexity int, input model.StoreAnalyzeRequestInput) int
 	}
 
 	Query struct {
@@ -92,7 +92,7 @@ type MutationResolver interface {
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthOutput, error)
 	CancelToken(ctx context.Context, input model.CancelTokenInput) (bool, error)
 	RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error)
-	StoreRequest(ctx context.Context, input *model.StoreAnalyzeRequestInput) (bool, error)
+	StoreAnalyzeRequest(ctx context.Context, input model.StoreAnalyzeRequestInput) (bool, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context) (*model.User, error)
@@ -218,17 +218,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RefreshToken(childComplexity, args["input"].(model.RefreshTokenInput)), true
 
-	case "Mutation.storeRequest":
-		if e.complexity.Mutation.StoreRequest == nil {
+	case "Mutation.storeAnalyzeRequest":
+		if e.complexity.Mutation.StoreAnalyzeRequest == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_storeRequest_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_storeAnalyzeRequest_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.StoreRequest(childComplexity, args["input"].(*model.StoreAnalyzeRequestInput)), true
+		return e.complexity.Mutation.StoreAnalyzeRequest(childComplexity, args["input"].(model.StoreAnalyzeRequestInput)), true
 
 	case "Query.analyzeRequests":
 		if e.complexity.Query.AnalyzeRequests == nil {
@@ -443,7 +443,7 @@ type Mutation {
   login(input: LoginInput!): AuthOutput!
   cancelToken(input: CancelTokenInput!): Boolean!
   refreshToken(input: RefreshTokenInput!): String!
-  storeRequest(input: StoreAnalyzeRequestInput): Boolean!
+  storeAnalyzeRequest(input: StoreAnalyzeRequestInput!): Boolean!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -508,12 +508,12 @@ func (ec *executionContext) field_Mutation_refreshToken_args(ctx context.Context
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_storeRequest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_storeAnalyzeRequest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.StoreAnalyzeRequestInput
+	var arg0 model.StoreAnalyzeRequestInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalOStoreAnalyzeRequestInput2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx, tmp)
+		arg0, err = ec.unmarshalNStoreAnalyzeRequestInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1038,7 +1038,7 @@ func (ec *executionContext) _Mutation_refreshToken(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_storeRequest(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_storeAnalyzeRequest(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1054,7 +1054,7 @@ func (ec *executionContext) _Mutation_storeRequest(ctx context.Context, field gr
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_storeRequest_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_storeAnalyzeRequest_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1062,7 +1062,7 @@ func (ec *executionContext) _Mutation_storeRequest(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().StoreRequest(rctx, args["input"].(*model.StoreAnalyzeRequestInput))
+		return ec.resolvers.Mutation().StoreAnalyzeRequest(rctx, args["input"].(model.StoreAnalyzeRequestInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2827,8 +2827,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "storeRequest":
-			out.Values[i] = ec._Mutation_storeRequest(ctx, field)
+		case "storeAnalyzeRequest":
+			out.Values[i] = ec._Mutation_storeAnalyzeRequest(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3334,6 +3334,10 @@ func (ec *executionContext) unmarshalNRefreshTokenInput2githubᚗcomᚋAchoArnol
 	return ec.unmarshalInputRefreshTokenInput(ctx, v)
 }
 
+func (ec *executionContext) unmarshalNStoreAnalyzeRequestInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx context.Context, v interface{}) (model.StoreAnalyzeRequestInput, error) {
+	return ec.unmarshalInputStoreAnalyzeRequestInput(ctx, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	return graphql.UnmarshalString(v)
 }
@@ -3646,18 +3650,6 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 	return ec.marshalOInt2int(ctx, sel, *v)
-}
-
-func (ec *executionContext) unmarshalOStoreAnalyzeRequestInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx context.Context, v interface{}) (model.StoreAnalyzeRequestInput, error) {
-	return ec.unmarshalInputStoreAnalyzeRequestInput(ctx, v)
-}
-
-func (ec *executionContext) unmarshalOStoreAnalyzeRequestInput2ᚖgithubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx context.Context, v interface{}) (*model.StoreAnalyzeRequestInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalOStoreAnalyzeRequestInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐStoreAnalyzeRequestInput(ctx, v)
-	return &res, err
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

@@ -63,6 +63,23 @@ func (service GoValidator) ValidateLoginInput(input model.LoginInput, _ language
 	return service.urlValuesToResult(v.ValidateStruct())
 }
 
+// ValidateStoreAnalzyeRequest validates the store analyze request input
+func (service GoValidator) ValidateStoreAnalzyeRequest(input model.StoreAnalyzeRequestInput, _ language.Tag) validator.ValidationResult {
+	v := govalidator.New(govalidator.Options{
+		Data: &input,
+		Rules: govalidator.MapData{
+			"ovChipkaartUsername": []string{"min:6"},
+			"ovChipkaartPassword": []string{"max:6"},
+			"travelHistoryFile":   []string{"mime:text/csv"},
+			"startDate":           []string{"required", "date"},
+			"endDate":             []string{"required", "date"},
+			"ovChipkaartNumber":   []string{"required", "date", "min:16", "max:16", "numeric"},
+		},
+	})
+
+	return service.urlValuesToResult(v.ValidateStruct())
+}
+
 func (service GoValidator) urlValuesToResult(value url.Values) validator.ValidationResult {
 	return validator.ValidationResult{
 		HasError: len(value) > 0,

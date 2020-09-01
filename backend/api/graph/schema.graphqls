@@ -79,5 +79,5 @@ type Mutation {
   login(input: LoginInput!): AuthOutput!
   cancelToken(input: CancelTokenInput!): Boolean!
   refreshToken(input: RefreshTokenInput!): String!
-  storeRequest(input: StoreAnalyzeRequestInput): Boolean!
+  storeAnalyzeRequest(input: StoreAnalyzeRequestInput!): Boolean!
 }

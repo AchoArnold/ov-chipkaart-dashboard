@@ -23,4 +23,5 @@ type ValidationResult struct {
 type Validator interface {
 	ValidateCreateUserInput(input model.CreateUserInput, localeTag language.Tag) ValidationResult
 	ValidateLoginInput(input model.LoginInput, localeTag language.Tag) ValidationResult
+	ValidateStoreAnalzyeRequest(input model.StoreAnalyzeRequestInput, localTag language.Tag) ValidationResult
 }
