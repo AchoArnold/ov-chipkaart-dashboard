@@ -11,7 +11,7 @@ require (
 	github.com/getsentry/sentry-go v0.6.1
 	github.com/go-kit/kit v0.10.0
 	github.com/go-redis/redis/v8 v8.0.0-beta.2
-	github.com/golang/protobuf v1.4.2 // indirect
+	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.1
 	github.com/google/wire v0.4.0
 	github.com/gorilla/mux v1.7.4
@@ -33,6 +33,6 @@ require (
 	golang.org/x/sys v0.0.0-20200831180312-196b9ba8737a // indirect
 	golang.org/x/text v0.3.3
 	google.golang.org/genproto v0.0.0-20200901141002-b3bf27a9dbd1 // indirect
-	google.golang.org/grpc v1.31.1 // indirect
-	google.golang.org/protobuf v1.25.0 // indirect
+	google.golang.org/grpc v1.31.1
+	google.golang.org/protobuf v1.25.0
 )

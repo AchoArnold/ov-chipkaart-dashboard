@@ -47,3 +47,8 @@ func (db *MongoDB) UserRepository() database.UserRepository {
 func (db *MongoDB) AnalyzeRequestRepository() database.AnalyzeRequestRepository {
 	return NewAnalyzeRequestRepository(db.client, "analyze_requests")
 }
+
+// RawRecordRepository represents a raw record
+func (db *MongoDB) RawRecordRepository() database.RawRecordRepository {
+	return NewRawRecordRepository(db.client, "raw_records")
+}

@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
+	"google.golang.org/grpc"
+
 	ov_chipkaart "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ov-chipkaart"
 
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -82,10 +85,11 @@ func initializeResolver() *resolver.Resolver {
 		initializeErrorHandler(),
 		initializeLogger(),
 		initializeJWTService(),
+		initializeTransactionsServiceClient(),
 	)
 }
 
-func initializeOvChipkaartAPIService() ov_chipkaart.APIClient {
+func initializeOvChipkaartAPIClient() ov_chipkaart.APIClient {
 	return ov_chipkaart.NewAPIService(ov_chipkaart.APIServiceConfig{
 		ClientID:     os.Getenv("OV_CHIPKAART_API_CLIENT_ID"),
 		ClientSecret: os.Getenv("OV_CHIPKAART_API_CLIENT_SECRET"),
@@ -95,7 +99,7 @@ func initializeOvChipkaartAPIService() ov_chipkaart.APIClient {
 }
 
 func initializeValidatorHelpers() validator.Helpers {
-	return validator.NewHelpers(initializeOvChipkaartAPIService())
+	return validator.NewHelpers(initializeOvChipkaartAPIClient())
 }
 
 func initializeValidator() validator.Validator {
@@ -160,4 +164,13 @@ func initializeErrorHandler() errorhandler.ErrorHandler {
 	}
 
 	return errHandler
+}
+
+func initializeTransactionsServiceClient() transactions.TransactionsServiceClient {
+	conn, err := grpc.Dial(os.Getenv("TRANSACTIONS_SERVICE_TARGET"), grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return transactions.NewTransactionsServiceClient(conn)
 }

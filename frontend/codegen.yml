@@ -1,6 +1,6 @@
 overwrite: true
 schema: "../backend/api/graph/schema.graphqls"
-documents: "./src/services/graphql/types.tsx"
+documents: "./src/services/graphql/id.tsx"
 generates:
   /Users/najela/Work/NdoleStudio/Github/ov-chipkaart-dashboard/frontend/src/services/graphql/generated.tsx:
     plugins:

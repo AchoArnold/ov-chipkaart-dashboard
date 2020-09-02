@@ -6,114 +6,17 @@ package resolver
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/entities"
-	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/errors"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/generated"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
-	internalTime "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/time"
-	pkgErrors "github.com/pkg/errors"
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.AuthOutput, error) {
-	validationResult := r.validator.ValidateCreateUserInput(input, r.languageTagFromContext(ctx))
-	if validationResult.HasError {
-		r.addValidationErrors(ctx, validationResult)
-		return nil, internalErrors.ErrValidationError
-	}
-
-	hashedPassword, err := r.passwordService.HashPassword(input.Password)
-	if err != nil {
-		r.errorHandler.CaptureError(ctx, pkgErrors.Wrap(err, "could not hash password"))
-		return nil, internalErrors.ErrInternalServerError
-	}
-
-	user := entities.User{
-		ID:        id.New(),
-		FirstName: input.FirstName,
-		LastName:  input.LastName,
-		Email:     input.Email,
-		Password:  hashedPassword,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	err = r.db.UserRepository().Store(user)
-	if err != nil {
-		r.errorHandler.CaptureError(ctx, pkgErrors.Wrap(err, "cannot save user in the database"))
-		return nil, internalErrors.ErrInternalServerError
-	}
-
-	token, err := r.jwtService.GenerateTokenForUserID(user.ID)
-	if err != nil {
-		r.errorHandler.CaptureError(ctx, pkgErrors.Wrapf(err, "cannot generate jwt token for user with ID: %s", user.ID.String()))
-		return nil, internalErrors.ErrInternalServerError
-	}
-
-	return &model.AuthOutput{
-		User: &model.User{
-			ID:        user.ID.String(),
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Email:     user.Email,
-			CreatedAt: user.CreatedAt.Format(internalTime.DefaultFormat),
-			UpdatedAt: user.UpdatedAt.Format(internalTime.DefaultFormat),
-		},
-		Token: &model.Token{
-			Value: token,
-		},
-	}, nil
+	return r.createUser(ctx, input)
 }
 
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthOutput, error) {
-	validationResult := r.validator.ValidateLoginInput(input, r.languageTagFromContext(ctx))
-	if validationResult.HasError {
-		r.addValidationErrors(ctx, validationResult)
-		return nil, internalErrors.ErrValidationError
-	}
-
-	user, err := r.db.UserRepository().FindByEmail(input.Email)
-	if err == database.ErrEntityNotFound {
-		r.addError(ctx, fieldEmail, validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
-		r.addError(ctx, fieldPassword, validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
-		return nil, internalErrors.ErrValidationError
-	}
-
-	if err != nil {
-		r.errorHandler.CaptureError(ctx, pkgErrors.Wrap(err, "cannot find user by email"))
-		return nil, internalErrors.ErrInternalServerError
-	}
-
-	passwordIsValid := r.passwordService.CheckPasswordHash(input.Password, user.Password)
-	if !passwordIsValid {
-		r.addError(ctx, fieldEmail, validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
-		r.addError(ctx, fieldPassword, validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
-		return nil, internalErrors.ErrValidationError
-	}
-
-	token, err := r.jwtService.GenerateTokenForUserID(user.ID)
-	if err != nil {
-		r.errorHandler.CaptureError(ctx, pkgErrors.Wrapf(err, "cannot generate jwt token for user with ID: %s", user.ID.String()))
-		return nil, internalErrors.ErrInternalServerError
-	}
-
-	return &model.AuthOutput{
-		User: &model.User{
-			ID:        user.ID.String(),
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Email:     user.Email,
-			CreatedAt: user.CreatedAt.Format(internalTime.DefaultFormat),
-			UpdatedAt: user.UpdatedAt.Format(internalTime.DefaultFormat),
-		},
-		Token: &model.Token{
-			Value: token,
-		},
-	}, nil
+	return r.login(ctx, input)
 }
 
 func (r *mutationResolver) CancelToken(ctx context.Context, input model.CancelTokenInput) (bool, error) {
@@ -125,46 +28,7 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 }
 
 func (r *mutationResolver) StoreAnalyzeRequest(ctx context.Context, input model.StoreAnalyzeRequestInput) (bool, error) {
-	// check that the user is authorized
-	userID, err := r.userIDFromContext(ctx)
-	if err != nil {
-		return false, ErrUnauthorizedRequest
-	}
-
-	validationResult := r.validator.ValidateStoreAnalzyeRequest(input, r.languageTagFromContext(ctx))
-	if validationResult.HasError {
-		r.addValidationErrors(ctx, validationResult)
-		return false, internalErrors.ErrValidationError
-	}
-
-	_ = input.TravelHistoryFile.File
-
-	inputType := entities.AnalyzeRequestInputTypeCSV
-	if input.OvChipkaartUsername != nil {
-		inputType = entities.AnalyzeRequestInputTypeCredentials
-	}
-	startDate, _ := internalTime.FromDate(input.StartDate)
-	endDate, _ := internalTime.FromDate(input.EndDate)
-
-	analyzeRequest := entities.AnalyzeRequest{
-		ID:                id.New(),
-		UserID:            userID,
-		InputType:         inputType,
-		OvChipkaartNumber: input.OvChipkaartNumber,
-		StartDate:         startDate,
-		EndDate:           endDate,
-		Status:            entities.AnalyzeRequestStatusInProgress,
-		CreatedAt:         time.Now(),
-		UpdatedAt:         time.Now(),
-	}
-
-	err = r.db.AnalyzeRequestRepository().Store(analyzeRequest)
-	if err != nil {
-		r.errorHandler.CaptureError(ctx, pkgErrors.Wrap(err, "cannot save analyze request in the database"))
-		return false, internalErrors.ErrInternalServerError
-	}
-
-	return true, nil
+	return r.storeAnalyzeRequest(ctx, input)
 }
 
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {

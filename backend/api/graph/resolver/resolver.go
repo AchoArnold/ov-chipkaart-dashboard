@@ -3,6 +3,8 @@ package resolver
 import (
 	"context"
 
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
+
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -35,12 +37,13 @@ var (
 
 // Resolver resolves
 type Resolver struct {
-	db              database.DB
-	validator       validator.Validator
-	passwordService password.Service
-	errorHandler    errorhandler.ErrorHandler
-	logger          logger.Logger
-	jwtService      jwt.Service
+	db                        database.DB
+	validator                 validator.Validator
+	passwordService           password.Service
+	errorHandler              errorhandler.ErrorHandler
+	logger                    logger.Logger
+	jwtService                jwt.Service
+	transactionsServiceClient transactions.TransactionsServiceClient
 }
 
 // NewResolver creates a new instance of the resolver
@@ -51,15 +54,17 @@ func NewResolver(
 	errorHandler errorhandler.ErrorHandler,
 	logger logger.Logger,
 	jwtService jwt.Service,
+	transactionsServiceClient transactions.TransactionsServiceClient,
 ) *Resolver {
 
 	return &Resolver{
-		db:              db,
-		validator:       validator,
-		passwordService: passwordService,
-		errorHandler:    errorHandler,
-		logger:          logger,
-		jwtService:      jwtService,
+		db:                        db,
+		validator:                 validator,
+		passwordService:           passwordService,
+		errorHandler:              errorHandler,
+		logger:                    logger,
+		jwtService:                jwtService,
+		transactionsServiceClient: transactionsServiceClient,
 	}
 }
 

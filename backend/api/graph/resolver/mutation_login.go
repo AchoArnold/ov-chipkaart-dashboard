@@ -2,43 +2,39 @@ package resolver
 
 import (
 	"context"
-	"time"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/entities"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
 	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/errors"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator"
 	internalTime "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/time"
 	pkgErrors "github.com/pkg/errors"
 )
 
-func (r *mutationResolver) createUser(ctx context.Context, input model.CreateUserInput) (*model.AuthOutput, error) {
-	validationResult := r.validator.ValidateCreateUserInput(input, r.languageTagFromContext(ctx))
+func (r *mutationResolver) login(ctx context.Context, input model.LoginInput) (*model.AuthOutput, error) {
+	validationResult := r.validator.ValidateLoginInput(input, r.languageTagFromContext(ctx))
 	if validationResult.HasError {
 		r.addValidationErrors(ctx, validationResult)
 		return nil, internalErrors.ErrValidationError
 	}
 
-	hashedPassword, err := r.passwordService.HashPassword(input.Password)
+	user, err := r.db.UserRepository().FindByEmail(input.Email)
+	if err == database.ErrEntityNotFound {
+		r.addError(ctx, fieldEmail, validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
+		r.addError(ctx, fieldPassword, validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
+		return nil, internalErrors.ErrValidationError
+	}
+
 	if err != nil {
-		r.errorHandler.CaptureError(ctx, pkgErrors.Wrap(err, "could not hash password"))
+		r.errorHandler.CaptureError(ctx, pkgErrors.Wrap(err, "cannot find user by email"))
 		return nil, internalErrors.ErrInternalServerError
 	}
 
-	user := entities.User{
-		ID:        id.New(),
-		FirstName: input.FirstName,
-		LastName:  input.LastName,
-		Email:     input.Email,
-		Password:  hashedPassword,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	err = r.db.UserRepository().Store(user)
-	if err != nil {
-		r.errorHandler.CaptureError(ctx, pkgErrors.Wrap(err, "cannot save user in the database"))
-		return nil, internalErrors.ErrInternalServerError
+	passwordIsValid := r.passwordService.CheckPasswordHash(input.Password, user.Password)
+	if !passwordIsValid {
+		r.addError(ctx, fieldEmail, validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
+		r.addError(ctx, fieldPassword, validator.ErrInvalidEmailOrPassword.Error(), CodeValidationError)
+		return nil, internalErrors.ErrValidationError
 	}
 
 	token, err := r.jwtService.GenerateTokenForUserID(user.ID)

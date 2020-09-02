@@ -77,7 +77,7 @@ func (service GoValidator) ValidateStoreAnalzyeRequest(input model.StoreAnalyzeR
 			"travelHistoryFile":   []string{"mime:text/csv"},
 			"startDate":           []string{"required", "date:yyyy-mm-dd"},
 			"endDate":             []string{"required", "date:yyyy-mm-dd"},
-			"ovChipkaartNumber":   []string{"required", "date", "min:16", "max:16", "numeric"},
+			"ovChipkaartNumber":   []string{"required", "min:16", "max:16", "numeric"},
 		},
 	})
 
@@ -122,7 +122,7 @@ func (service GoValidator) ValidateStoreAnalzyeRequest(input model.StoreAnalyzeR
 		}
 	}
 
-	return service.urlValuesToResult(v.ValidateStruct())
+	return service.urlValuesToResult(values)
 }
 
 func (service GoValidator) urlValuesToResult(value url.Values) validator.ValidationResult {
