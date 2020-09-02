@@ -3,6 +3,8 @@ package resolver
 import (
 	"context"
 
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator"
@@ -20,6 +22,11 @@ import (
 const (
 	// CodeValidationError is the code that is returned on a validation error message
 	CodeValidationError = "VALIDATION_ERROR"
+)
+
+var (
+	// ErrUnauthorizedRequest is the error when the user is unauthorized
+	ErrUnauthorizedRequest = errors.New("401 Unauthorized")
 )
 
 // This file will not be regenerated automatically.
@@ -57,13 +64,21 @@ func NewResolver(
 }
 
 func (r *Resolver) languageTagFromContext(ctx context.Context) language.Tag {
-	tag := ctx.Value(middlewares.ContextKeyLanguageTag).(*language.Tag)
-	if tag == nil {
+	tag, ok := ctx.Value(middlewares.ContextKeyLanguageTag).(*language.Tag)
+	if tag == nil || !ok {
 		r.errorHandler.CaptureError(ctx, errors.New("cannot fetch language tag from resolver"))
 		return language.English
 	}
 
 	return *tag
+}
+
+func (r *Resolver) userIDFromContext(ctx context.Context) (userID id.ID, err error) {
+	userID, err = id.FromInterface(ctx.Value(middlewares.ContextKeyUserID))
+
+	r.errorHandler.CaptureError(ctx, errors.Wrap(err, "cannot fetch user id from context"))
+
+	return userID, err
 }
 
 func (r *Resolver) addValidationErrors(ctx context.Context, result validator.ValidationResult) {

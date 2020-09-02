@@ -2,6 +2,7 @@ package id
 
 import (
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 )
 
 // ID is a UUID used to trace a batch of work which is being processed.
@@ -24,5 +25,15 @@ func FromString(idString string) (id ID, err error) {
 	if err != nil {
 		return id, err
 	}
+	return ID(uID), err
+}
+
+// FromInterface parses the uuid from an interface type
+func FromInterface(idInterface interface{}) (id ID, err error) {
+	uID, ok := idInterface.(ID)
+	if !ok {
+		return id, errors.New("invalid id")
+	}
+
 	return ID(uID), err
 }

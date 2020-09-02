@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
+	ov_chipkaart "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ov-chipkaart"
+
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/middlewares"
 	"github.com/gorilla/mux"
@@ -83,8 +85,21 @@ func initializeResolver() *resolver.Resolver {
 	)
 }
 
+func initializeOvChipkaartAPIService() ov_chipkaart.APIClient {
+	return ov_chipkaart.NewAPIService(ov_chipkaart.APIServiceConfig{
+		ClientID:     os.Getenv("OV_CHIPKAART_API_CLIENT_ID"),
+		ClientSecret: os.Getenv("OV_CHIPKAART_API_CLIENT_SECRET"),
+		Locale:       "en",
+		Client:       &http.Client{},
+	})
+}
+
+func initializeValidatorHelpers() validator.Helpers {
+	return validator.NewHelpers(initializeOvChipkaartAPIService())
+}
+
 func initializeValidator() validator.Validator {
-	return govalidator.New(initializeDB(), initializeErrorHandler())
+	return govalidator.New(initializeDB(), initializeValidatorHelpers(), initializeErrorHandler())
 }
 
 func initializePasswordService() password.Service {

@@ -125,10 +125,43 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 }
 
 func (r *mutationResolver) StoreAnalyzeRequest(ctx context.Context, input model.StoreAnalyzeRequestInput) (bool, error) {
+	// check that the user is authorized
+	userID, err := r.userIDFromContext(ctx)
+	if err != nil {
+		return false, ErrUnauthorizedRequest
+	}
+
 	validationResult := r.validator.ValidateStoreAnalzyeRequest(input, r.languageTagFromContext(ctx))
 	if validationResult.HasError {
 		r.addValidationErrors(ctx, validationResult)
 		return false, internalErrors.ErrValidationError
+	}
+
+	_ = input.TravelHistoryFile.File
+
+	inputType := entities.AnalyzeRequestInputTypeCSV
+	if input.OvChipkaartUsername != nil {
+		inputType = entities.AnalyzeRequestInputTypeCredentials
+	}
+	startDate, _ := internalTime.FromDate(input.StartDate)
+	endDate, _ := internalTime.FromDate(input.EndDate)
+
+	analyzeRequest := entities.AnalyzeRequest{
+		ID:                id.New(),
+		UserID:            userID,
+		InputType:         inputType,
+		OvChipkaartNumber: input.OvChipkaartNumber,
+		StartDate:         startDate,
+		EndDate:           endDate,
+		Status:            entities.AnalyzeRequestStatusInProgress,
+		CreatedAt:         time.Now(),
+		UpdatedAt:         time.Now(),
+	}
+
+	err = r.db.AnalyzeRequestRepository().Store(analyzeRequest)
+	if err != nil {
+		r.errorHandler.CaptureError(ctx, pkgErrors.Wrap(err, "cannot save analyze request in the database"))
+		return false, internalErrors.ErrInternalServerError
 	}
 
 	return true, nil

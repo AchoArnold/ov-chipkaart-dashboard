@@ -1,4 +1,4 @@
-package main
+package ovchipkaart
 
 import (
 	"math"
@@ -20,6 +20,8 @@ const contentTypeJSON = "application/json"
 const contentTypeFormURLEncoded = "application/x-www-form-urlencoded"
 
 const responseCodeOk = 200
+
+const dateFormat = "2006-01-02"
 
 const transactionRequestsPerSecond = 10
 
@@ -61,16 +63,16 @@ type transactionsPayload struct {
 	EndDate            string `json:"endDate"`
 }
 
-// TransactionFetcherAPIService is responsible for the fetching transactions using the ov-chipkaart API
-type TransactionFetcherAPIService struct {
+// APIClient is responsible for the fetching transactions using the ov-chipkaart API
+type APIClient struct {
 	clientID     string
 	clientSecret string
 	httpClient   HTTPClient
 	locale       string
 }
 
-// TransactionFetcherAPIServiceConfig is the configuration for this service
-type TransactionFetcherAPIServiceConfig struct {
+// APIServiceConfig is the configuration for this service
+type APIServiceConfig struct {
 	ClientID     string
 	ClientSecret string
 	Locale       string
@@ -78,8 +80,8 @@ type TransactionFetcherAPIServiceConfig struct {
 }
 
 // NewAPIService Initializes the API service.
-func NewAPIService(config TransactionFetcherAPIServiceConfig) *TransactionFetcherAPIService {
-	return &TransactionFetcherAPIService{
+func NewAPIService(config APIServiceConfig) APIClient {
+	return APIClient{
 		clientID:     config.ClientID,
 		clientSecret: config.ClientSecret,
 		httpClient:   config.Client,
@@ -87,14 +89,14 @@ func NewAPIService(config TransactionFetcherAPIServiceConfig) *TransactionFetche
 	}
 }
 
-// GetAuthorisationToken gets the auth token from username/password
-func (service TransactionFetcherAPIService) GetAuthorisationToken(username string, password string) (authorisationToken string, err error) {
-	authenticationToken, err := service.getAuthenticationToken(username, password)
+// GetAuthorisationToken fetches the auth token based on username/password combination
+func (client APIClient) GetAuthorisationToken(username string, password string) (authorisationToken string, err error) {
+	authenticationToken, err := client.getAuthenticationToken(username, password)
 	if err != nil {
 		return authorisationToken, errors.Wrap(err, "could not fetch authentication token")
 	}
 
-	authorisationTokenResponse, err := service.getAuthorisationToken(authenticationToken)
+	authorisationTokenResponse, err := client.getAuthorisationToken(authenticationToken)
 	if err != nil {
 		return authorisationToken, errors.Wrap(err, "could not fetch authorisation token")
 	}
@@ -103,13 +105,13 @@ func (service TransactionFetcherAPIService) GetAuthorisationToken(username strin
 }
 
 // FetchTransactions returns the transaction records based on the parameter provided.
-func (service TransactionFetcherAPIService) FetchTransactions(options TransactionFetchOptions) (records []RawRecord, err error) {
-	authorisationToken, err := service.GetAuthorisationToken(options.Username, options.Password)
+func (client APIClient) FetchTransactions(options TransactionFetchOptions) (records []RawRecord, err error) {
+	authorisationToken, err := client.GetAuthorisationToken(options.Username, options.Password)
 	if err != nil {
 		return records, err
 	}
 
-	records, err = service.getTransactions(authorisationToken, options)
+	records, err = client.getTransactions(authorisationToken, options)
 	if err != nil {
 		return records, errors.Wrap(err, "could not fetch transactions")
 	}
@@ -117,16 +119,16 @@ func (service TransactionFetcherAPIService) FetchTransactions(options Transactio
 	return records, nil
 }
 
-func (service TransactionFetcherAPIService) getTransactions(authorisationToken string, options TransactionFetchOptions) ([]RawRecord, error) {
+func (client APIClient) getTransactions(authorisationToken string, options TransactionFetchOptions) ([]RawRecord, error) {
 	payload := transactionsPayload{
 		AuthorisationToken: authorisationToken,
 		MediumID:           options.CardNumber,
-		Locale:             service.locale,
+		Locale:             client.locale,
 		StartDate:          options.StartDate.Format(dateFormat),
 		EndDate:            options.EndDate.Format(dateFormat),
 	}
 
-	transactionsResponse, err := service.getTransaction(payload)
+	transactionsResponse, err := client.getTransaction(payload)
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot perform transactions request: payload = %+v", payload)
 	}
@@ -146,7 +148,7 @@ func (service TransactionFetcherAPIService) getTransactions(authorisationToken s
 
 		rateLimiter.Take()
 
-		transactionsResponse, err = service.getTransaction(payload)
+		transactionsResponse, err = client.getTransaction(payload)
 		if err != nil {
 			return nil, errors.Wrapf(err, "cannot perform transactions request: payload = %+v", payload)
 		}
@@ -157,18 +159,18 @@ func (service TransactionFetcherAPIService) getTransactions(authorisationToken s
 	return records, nil
 }
 
-func (service TransactionFetcherAPIService) getTransaction(payload transactionsPayload) (transactionsResponse *transactionsResponse, err error) {
+func (client APIClient) getTransaction(payload transactionsPayload) (transactionsResponse *transactionsResponse, err error) {
 	payloadAsMap, err := json.JsonToStringMap(payload)
 	if err != nil {
 		return transactionsResponse, errors.Wrapf(err, "cannot serialize request to map %#+v", payload)
 	}
 
-	request, err := service.createPostRequest(endpointTransactions, payloadAsMap)
+	request, err := client.createPostRequest(endpointTransactions, payloadAsMap)
 	if err != nil {
 		return transactionsResponse, errors.Wrapf(err, "cannot create transaction request: payload = %+#v", payloadAsMap)
 	}
 
-	response, err := service.doHTTPRequest(request)
+	response, err := client.doHTTPRequest(request)
 	if err != nil {
 		return transactionsResponse, errors.Wrapf(err, "cannot perform transaction request: payload = %+#v", request)
 	}
@@ -185,17 +187,17 @@ func (service TransactionFetcherAPIService) getTransaction(payload transactionsP
 	return transactionsResponse, nil
 }
 
-func (service TransactionFetcherAPIService) getAuthorisationToken(authenticationTokenResponse authenticationTokenResponse) (authorisationToken authorisationTokenResponse, err error) {
+func (client APIClient) getAuthorisationToken(authenticationTokenResponse authenticationTokenResponse) (authorisationToken authorisationTokenResponse, err error) {
 	payload := map[string]string{
 		"authenticationToken": authenticationTokenResponse.IDToken,
 	}
 
-	request, err := service.createPostRequest(endpointAuthorisation, payload)
+	request, err := client.createPostRequest(endpointAuthorisation, payload)
 	if err != nil {
 		return authorisationToken, errors.Wrap(err, "cannot create authorisation request")
 	}
 
-	response, err := service.doHTTPRequest(request)
+	response, err := client.doHTTPRequest(request)
 	if err != nil {
 		return authorisationToken, errors.Wrap(err, "cannot perform authorisation request")
 	}
@@ -212,22 +214,22 @@ func (service TransactionFetcherAPIService) getAuthorisationToken(authentication
 	return authorisationToken, nil
 }
 
-func (service TransactionFetcherAPIService) getAuthenticationToken(username, password string) (authenticationToken authenticationTokenResponse, err error) {
+func (client APIClient) getAuthenticationToken(username, password string) (authenticationToken authenticationTokenResponse, err error) {
 	payload := map[string]string{
 		"username":      username,
 		"password":      password,
-		"client_id":     service.clientID,
-		"client_secret": service.clientSecret,
+		"client_id":     client.clientID,
+		"client_secret": client.clientSecret,
 		"grant_type":    "password",
 		"scope":         "openid",
 	}
 
-	request, err := service.createPostRequest(endpointAuthentication, payload)
+	request, err := client.createPostRequest(endpointAuthentication, payload)
 	if err != nil {
 		return authenticationToken, errors.Wrap(err, "cannot create authentication request")
 	}
 
-	response, err := service.doHTTPRequest(request)
+	response, err := client.doHTTPRequest(request)
 	if err != nil {
 		return authenticationToken, errors.Wrap(err, "cannot perform authentication request")
 	}
@@ -244,8 +246,8 @@ func (service TransactionFetcherAPIService) getAuthenticationToken(username, pas
 	return authenticationToken, nil
 }
 
-func (service TransactionFetcherAPIService) doHTTPRequest(request *http.Request) (*http.Response, error) {
-	apiResponse, err := service.httpClient.Do(request)
+func (client APIClient) doHTTPRequest(request *http.Request) (*http.Response, error) {
+	apiResponse, err := client.httpClient.Do(request)
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot execute %s request for %s: ", request.Method, request.URL.String())
 	}
@@ -253,7 +255,7 @@ func (service TransactionFetcherAPIService) doHTTPRequest(request *http.Request)
 	return apiResponse, nil
 }
 
-func (service TransactionFetcherAPIService) createPostRequest(endpoint string, payload map[string]string) (*http.Request, error) {
+func (client APIClient) createPostRequest(endpoint string, payload map[string]string) (*http.Request, error) {
 	data := url.Values{}
 	for key, val := range payload {
 		data.Set(key, val)

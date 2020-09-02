@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package transactions;
+
+message CredentialsRawRecordsRequest {
+  string username = 1;
+  string password = 2;
+  string cardNumber = 3;
+  google.protobuf.Timestamp startDate = 4;
+  google.protobuf.Timestamp endDate = 5;
+}
+
+message BytesRawRecordsRequest {
+  string cardNumber = 1;
+  google.protobuf.Timestamp startDate = 2;
+  google.protobuf.Timestamp endDate = 3;
+}
+
+message RawRecord {
+    string checkInInfo = 1;
+    string checkInText = 2;
+    oneof fare {
+      int64 fareValue = 3;
+    }
+    string fareCalculation = 4;
+    string fareText = 5;
+    string modalType = 6;
+    string productInfo = 7;
+    string productText = 8;
+    string pto= 9;
+    string transactionDateTime = 10;
+    string transactionInfo = 11;
+    string transactionName = 12;
+    oneof ePurseMut {
+      int64 ePurseMutValue = 13;
+    }
+    string ePurseMutInfo = 14;
+    string transactionExplanation = 15;
+    string transactionPriority = 16;
+
+}
+
+message RawRecordsResponse {
+  repeated RawRecord rawRecords = 1;
+}
+
+service TransactionsService {
+  rpc RawRecordsWithCredentials(CredentialsRawRecordsRequest) returns (RawRecordsResponse) {}
+  rpc RawRecordsFromBytes(BytesRawRecordsRequest) returns (RawRecordsResponse) {}
+}

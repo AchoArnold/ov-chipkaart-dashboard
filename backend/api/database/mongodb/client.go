@@ -42,3 +42,8 @@ func NewMongoDB(client *mongo.Database) database.DB {
 func (db *MongoDB) UserRepository() database.UserRepository {
 	return NewUserRepository(db.client, "users")
 }
+
+// AnalyzeRequestRepository returns the Analyze Request Repository
+func (db *MongoDB) AnalyzeRequestRepository() database.AnalyzeRequestRepository {
+	return NewAnalyzeRequestRepository(db.client, "analyze_requests")
+}
