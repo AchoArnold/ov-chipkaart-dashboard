@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
-
 	"github.com/AchoArnold/homework/services/json"
 	"github.com/pkg/errors"
 	"go.uber.org/ratelimit"
@@ -226,7 +224,6 @@ func (client APIClient) getAuthenticationToken(username, password string) (authe
 		"scope":         "openid",
 	}
 
-	spew.Dump(payload)
 	request, err := client.createPostRequest(endpointAuthentication, payload)
 	if err != nil {
 		return authenticationToken, errors.Wrap(err, "cannot create authentication request")

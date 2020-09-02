@@ -10,7 +10,6 @@ import (
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
 	internalTime "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/time"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/ptypes"
 	pkgErrors "github.com/pkg/errors"
 )
@@ -23,13 +22,10 @@ func (r *mutationResolver) storeAnalyzeRequest(ctx context.Context, input model.
 	}
 
 	validationResult := r.validator.ValidateStoreAnalzyeRequest(input, r.languageTagFromContext(ctx))
-	spew.Dump(validationResult)
 	if validationResult.HasError {
 		r.addValidationErrors(ctx, validationResult)
 		return false, internalErrors.ErrValidationError
 	}
-
-	spew.Dump("error after validation")
 
 	inputType := entities.AnalyzeRequestInputTypeCSV
 	if input.OvChipkaartUsername != nil {
