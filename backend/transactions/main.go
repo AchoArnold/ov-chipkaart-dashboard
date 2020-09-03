@@ -71,6 +71,10 @@ func (s *server) RawRecordsWithCredentials(_ context.Context, request *transacti
 		return nil, status.Error(codes.Code(stacktrace.GetCode(err)), err.Error())
 	}
 
+	return s.makeResponse(records)
+}
+
+func (s server) makeResponse(records []ovchipkaart.RawRecord) (*transactions.RawRecordsResponse, error) {
 	rawRecords := make([]*transactions.RawRecord, len(records))
 	for index, record := range records {
 		tDateTime, err := ptypes.TimestampProto(record.TransactionDateTime.ToTime())
