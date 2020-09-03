@@ -3,6 +3,7 @@ package resolver
 import (
 	"context"
 	"errors"
+	"io/ioutil"
 	"time"
 
 	internalContext "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/context"
@@ -78,10 +79,17 @@ func (r *mutationResolver) storeAnalyzeRequest(ctx context.Context, input model.
 		})
 	} else {
 		source = entities.RawRecordSourceCSV
+		data, err := ioutil.ReadAll(input.TravelHistoryFile.File)
+		if err != nil {
+			r.addError(ctx, "travelHistoryFile", "error while processing csv file", CodeValidationError)
+			return false, err
+		}
+
 		recordsResponse, err = r.transactionsServiceClient.RawRecordsFromBytes(grpcCtx, &transactions.BytesRawRecordsRequest{
 			CardNumber: analyzeRequest.OvChipkaartNumber,
 			StartDate:  protoStartDate,
 			EndDate:    protoEndDate,
+			Data:       data,
 		})
 	}
 
