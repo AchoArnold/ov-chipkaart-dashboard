@@ -7,6 +7,10 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/palantir/stacktrace"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	ovchipkaart "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ov-chipkaart"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
 	"github.com/golang/protobuf/ptypes"
@@ -64,7 +68,7 @@ func (s *server) RawRecordsWithCredentials(_ context.Context, request *transacti
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Code(stacktrace.GetCode(err)), err.Error())
 	}
 
 	rawRecords := make([]*transactions.RawRecord, len(records))

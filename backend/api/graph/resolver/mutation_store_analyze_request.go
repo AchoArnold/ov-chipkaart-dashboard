@@ -2,7 +2,10 @@ package resolver
 
 import (
 	"context"
+	"errors"
 	"time"
+
+	internalContext "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/context"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/entities"
 	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/errors"
@@ -46,7 +49,8 @@ func (r *mutationResolver) storeAnalyzeRequest(ctx context.Context, input model.
 		UpdatedAt:         time.Now(),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	grpcCtx := context.WithValue(context.Background(), internalContext.KeyAnalyzeRequestID, analyzeRequest.ID.String())
+	grpcCtx, cancel := context.WithTimeout(grpcCtx, time.Second*15)
 	defer cancel()
 
 	protoStartDate, err := ptypes.TimestampProto(analyzeRequest.StartDate)
@@ -65,7 +69,7 @@ func (r *mutationResolver) storeAnalyzeRequest(ctx context.Context, input model.
 	var source entities.RawRecordSource
 	if analyzeRequest.InputType == entities.AnalyzeRequestInputTypeCredentials {
 		source = entities.RawRecordSourceAPI
-		recordsResponse, err = r.transactionsServiceClient.RawRecordsWithCredentials(ctx, &transactions.CredentialsRawRecordsRequest{
+		recordsResponse, err = r.transactionsServiceClient.RawRecordsWithCredentials(grpcCtx, &transactions.CredentialsRawRecordsRequest{
 			Username:   *input.OvChipkaartUsername,
 			Password:   *input.OvChipkaartPassword,
 			CardNumber: input.OvChipkaartNumber,
@@ -74,7 +78,7 @@ func (r *mutationResolver) storeAnalyzeRequest(ctx context.Context, input model.
 		})
 	} else {
 		source = entities.RawRecordSourceCSV
-		recordsResponse, err = r.transactionsServiceClient.RawRecordsFromBytes(ctx, &transactions.BytesRawRecordsRequest{
+		recordsResponse, err = r.transactionsServiceClient.RawRecordsFromBytes(grpcCtx, &transactions.BytesRawRecordsRequest{
 			CardNumber: analyzeRequest.OvChipkaartNumber,
 			StartDate:  protoStartDate,
 			EndDate:    protoEndDate,
@@ -82,8 +86,15 @@ func (r *mutationResolver) storeAnalyzeRequest(ctx context.Context, input model.
 	}
 
 	if err != nil {
-		r.errorHandler.CaptureError(ctx, err)
-		return false, err
+		r.errorHandler.CaptureError(grpcCtx, err)
+		return false, errors.New("error while fetching ov chipkaart transactions")
+	}
+
+	if len(recordsResponse.RawRecords) == 0 {
+		r.addError(ctx, "ovChipkaartNumber", "There are no transactions for this ov chipkaart number for the date range provided", CodeValidationError)
+		r.addError(ctx, "startDate", "There are no transactions for this ov chipkaart number for the date range provided", CodeValidationError)
+		r.addError(ctx, "endDate", "There are no transactions for this ov chipkaart number for the date range provided", CodeValidationError)
+		return false, errors.New("error while processing ov chipkaart transactions")
 	}
 
 	rawRecords := make([]entities.RawRecord, len(recordsResponse.RawRecords))

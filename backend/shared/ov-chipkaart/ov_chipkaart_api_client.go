@@ -1,11 +1,15 @@
 package ovchipkaart
 
 import (
+	"bytes"
+	"io/ioutil"
 	"math"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/palantir/stacktrace"
 
 	"github.com/AchoArnold/homework/services/json"
 	"github.com/pkg/errors"
@@ -13,7 +17,7 @@ import (
 )
 
 const endpointAuthentication = "https://login.ov-chipkaart.nl/oauth2/token"
-const endpointAuthorisation = "https://api2.ov-chipkaart.nl/femobilegateway/v1/services/authorize"
+const endpointAuthorisation = "https://api2.ov-chipkaart.nl/femobilegateway/v1/api/authorize"
 const endpointTransactions = "https://api2.ov-chipkaart.nl/femobilegateway/v1/transactions"
 
 const contentTypeJSON = "application/json"
@@ -24,6 +28,13 @@ const responseCodeOk = 200
 const dateFormat = "2006-01-02"
 
 const transactionRequestsPerSecond = 10
+
+const (
+	// ErrCodeUnauthorized is returned when the user is not authorized
+	ErrCodeUnauthorized = stacktrace.ErrorCode(401)
+	// ErrCodeInternalServerError represents any other error
+	ErrCodeInternalServerError = stacktrace.ErrorCode(500)
+)
 
 type authenticationTokenResponse struct {
 	IDToken          string `json:"id_token"`
@@ -93,12 +104,12 @@ func NewAPIService(config APIServiceConfig) APIClient {
 func (client APIClient) GetAuthorisationToken(username string, password string) (authorisationToken string, err error) {
 	authenticationToken, err := client.getAuthenticationToken(username, password)
 	if err != nil {
-		return authorisationToken, errors.Wrap(err, "could not fetch authentication token")
+		return authorisationToken, stacktrace.PropagateWithCode(err, ErrCodeUnauthorized, "could not fetch authentication token")
 	}
 
 	authorisationTokenResponse, err := client.getAuthorisationToken(authenticationToken)
 	if err != nil {
-		return authorisationToken, errors.Wrap(err, "could not fetch authorisation token")
+		return authorisationToken, stacktrace.PropagateWithCode(err, ErrCodeUnauthorized, "could not fetch authorisation token")
 	}
 
 	return authorisationTokenResponse.Value, err
@@ -108,12 +119,12 @@ func (client APIClient) GetAuthorisationToken(username string, password string) 
 func (client APIClient) FetchTransactions(options TransactionFetchOptions) (records []RawRecord, err error) {
 	authorisationToken, err := client.GetAuthorisationToken(options.Username, options.Password)
 	if err != nil {
-		return records, err
+		return records, stacktrace.PropagateWithCode(err, ErrCodeUnauthorized, "could not authenticate user")
 	}
 
 	records, err = client.getTransactions(authorisationToken, options)
 	if err != nil {
-		return records, errors.Wrap(err, "could not fetch transactions")
+		return records, stacktrace.PropagateWithCode(err, ErrCodeInternalServerError, "could not fetch transactions")
 	}
 
 	return records, nil
@@ -130,7 +141,7 @@ func (client APIClient) getTransactions(authorisationToken string, options Trans
 
 	transactionsResponse, err := client.getTransaction(payload)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot perform transactions request: payload = %+v", payload)
+		return nil, stacktrace.Propagate(err, "cannot perform transactions request: payload = %+v", payload)
 	}
 
 	records := transactionsResponse.Response.Records
@@ -150,7 +161,7 @@ func (client APIClient) getTransactions(authorisationToken string, options Trans
 
 		transactionsResponse, err = client.getTransaction(payload)
 		if err != nil {
-			return nil, errors.Wrapf(err, "cannot perform transactions request: payload = %+v", payload)
+			return nil, stacktrace.Propagate(err, "cannot perform transactions request: payload = %+v", payload)
 		}
 
 		records = append(records, transactionsResponse.Response.Records...)
@@ -162,26 +173,26 @@ func (client APIClient) getTransactions(authorisationToken string, options Trans
 func (client APIClient) getTransaction(payload transactionsPayload) (transactionsResponse *transactionsResponse, err error) {
 	payloadAsMap, err := json.JsonToStringMap(payload)
 	if err != nil {
-		return transactionsResponse, errors.Wrapf(err, "cannot serialize request to map %#+v", payload)
+		return transactionsResponse, stacktrace.Propagate(err, "cannot serialize request to map %#+v", payload)
 	}
 
 	request, err := client.createPostRequest(endpointTransactions, payloadAsMap)
 	if err != nil {
-		return transactionsResponse, errors.Wrapf(err, "cannot create transaction request: payload = %+#v", payloadAsMap)
+		return transactionsResponse, stacktrace.Propagate(err, "cannot create transaction request: payload = %+#v", payloadAsMap)
 	}
 
 	response, err := client.doHTTPRequest(request)
 	if err != nil {
-		return transactionsResponse, errors.Wrapf(err, "cannot perform transaction request: payload = %+#v", request)
+		return transactionsResponse, stacktrace.Propagate(err, "cannot perform transaction request: payload = %+#v", request)
 	}
 
 	err = json.JsonDecode(&transactionsResponse, response.Body)
 	if err != nil {
-		return transactionsResponse, errors.Wrapf(err, "cannot decode response into transactions response: payload = %+#v", response)
+		return transactionsResponse, stacktrace.Propagate(err, "cannot decode response into transactions response: payload = %+#v", response)
 	}
 
 	if transactionsResponse != nil && transactionsResponse.ResponseCode != responseCodeOk {
-		return transactionsResponse, errors.Errorf("Invalid response code %d: payload = %+#v", transactionsResponse.ResponseCode, payload)
+		return transactionsResponse, stacktrace.NewError("Invalid response code %d: payload = %+#v", transactionsResponse.ResponseCode, payload)
 	}
 
 	return transactionsResponse, nil
@@ -194,21 +205,26 @@ func (client APIClient) getAuthorisationToken(authenticationTokenResponse authen
 
 	request, err := client.createPostRequest(endpointAuthorisation, payload)
 	if err != nil {
-		return authorisationToken, errors.Wrap(err, "cannot create authorisation request")
+		return authorisationToken, stacktrace.Propagate(err, "cannot create authorisation request")
 	}
 
 	response, err := client.doHTTPRequest(request)
 	if err != nil {
-		return authorisationToken, errors.Wrap(err, "cannot perform authorisation request")
+		return authorisationToken, stacktrace.Propagate(err, "cannot perform authorisation request")
 	}
 
-	err = json.JsonDecode(&authorisationToken, response.Body)
+	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return authorisationToken, errors.Wrap(err, "cannot decode authorisation token response")
+		return authorisationToken, stacktrace.Propagate(err, "cannot read body from response")
+	}
+
+	err = json.JsonDecode(&authorisationToken, bytes.NewBuffer(responseBody))
+	if err != nil {
+		return authorisationToken, stacktrace.Propagate(err, "cannot decode authorisation token response content: %s", responseBody)
 	}
 
 	if authorisationToken.ResponseCode != responseCodeOk {
-		return authorisationToken, errors.Errorf("Response Code: %d, Error: %s", authorisationToken.ResponseCode, authorisationToken.Value)
+		return authorisationToken, stacktrace.NewError("Response Code: %d, Error: %s", authorisationToken.ResponseCode, authorisationToken.Value)
 	}
 
 	return authorisationToken, nil
@@ -226,21 +242,21 @@ func (client APIClient) getAuthenticationToken(username, password string) (authe
 
 	request, err := client.createPostRequest(endpointAuthentication, payload)
 	if err != nil {
-		return authenticationToken, errors.Wrap(err, "cannot create authentication request")
+		return authenticationToken, stacktrace.Propagate(err, "cannot create authentication request")
 	}
 
 	response, err := client.doHTTPRequest(request)
 	if err != nil {
-		return authenticationToken, errors.Wrap(err, "cannot perform authentication request")
+		return authenticationToken, stacktrace.Propagate(err, "cannot perform authentication request")
 	}
 
 	err = json.JsonDecode(&authenticationToken, response.Body)
 	if err != nil {
-		return authenticationToken, errors.Wrap(err, "cannot decode authentication token response")
+		return authenticationToken, stacktrace.Propagate(err, "cannot decode authentication token response")
 	}
 
 	if authenticationToken.Error != "" {
-		return authenticationToken, errors.Wrap(errors.New(authenticationToken.Error), authenticationToken.ErrorDescription)
+		return authenticationToken, stacktrace.Propagate(errors.New(authenticationToken.Error), authenticationToken.ErrorDescription)
 	}
 
 	return authenticationToken, nil
@@ -249,7 +265,7 @@ func (client APIClient) getAuthenticationToken(username, password string) (authe
 func (client APIClient) doHTTPRequest(request *http.Request) (*http.Response, error) {
 	apiResponse, err := client.httpClient.Do(request)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot execute %s request for %s: ", request.Method, request.URL.String())
+		return nil, stacktrace.Propagate(err, "cannot execute %s request for %s: ", request.Method, request.URL.String())
 	}
 
 	return apiResponse, nil
@@ -263,7 +279,7 @@ func (client APIClient) createPostRequest(endpoint string, payload map[string]st
 
 	apiRequest, err := http.NewRequest(http.MethodPost, endpoint, strings.NewReader(data.Encode()))
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create request for URL: "+endpoint)
+		return nil, stacktrace.Propagate(err, "cannot create request for URL: "+endpoint)
 	}
 
 	apiRequest.Header.Set("Accept", contentTypeJSON)

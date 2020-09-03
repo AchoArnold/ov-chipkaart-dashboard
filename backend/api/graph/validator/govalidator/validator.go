@@ -12,6 +12,7 @@ import (
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/errorhandler"
+	"github.com/palantir/stacktrace"
 	"github.com/pkg/errors"
 	"github.com/thedevsaddam/govalidator"
 	"golang.org/x/text/language"
@@ -95,7 +96,7 @@ func (service GoValidator) ValidateStoreAnalzyeRequest(input model.StoreAnalyzeR
 
 	startDate, _ := time.FromDate(input.StartDate)
 	endDate, _ := time.FromDate(input.EndDate)
-	if startDate.Unix() < endDate.Unix() {
+	if startDate.Unix() >= endDate.Unix() {
 		values.Add("startDate", "The start date must be before the end date")
 		values.Add("endDate", "The end date must be after the start date")
 	}
@@ -117,8 +118,9 @@ func (service GoValidator) ValidateStoreAnalzyeRequest(input model.StoreAnalyzeR
 	if input.OvChipkaartPassword != nil || input.OvChipkaartUsername != nil {
 		err := service.helpers.ValidateOvChipkaartCredentials(*input.OvChipkaartUsername, *input.OvChipkaartPassword)
 		if err != nil {
-			values.Add("ovChipkaartUsername", err.Error())
-			values.Add("ovChipkaartPassword", err.Error())
+			service.errorHandler.CaptureError(context.Background(), err)
+			values.Add("ovChipkaartUsername", "Invalid OV Chipkaart username or password")
+			values.Add("ovChipkaartPassword", "Invalid OV Chipkaart username or password")
 		}
 	}
 
@@ -146,13 +148,14 @@ func (service GoValidator) ruleUserEmailExists() func(field string, rule string,
 		}
 
 		if err != nil {
-			service.errorHandler.CaptureError(context.Background(), errors.Wrapf(err, "cannot fetch user by email"))
+			service.errorHandler.CaptureError(context.Background(), stacktrace.Propagate(err, "cannot fetch user by email"))
+			return fmt.Errorf("internal error when verifying the %s '%s'", field, value)
 		}
 
 		if message != "" {
 			return errors.New(message)
 		}
 
-		return fmt.Errorf("A user already exist with the %s '%s'", field, value)
+		return fmt.Errorf("a user already exist with the %s '%s'", field, value)
 	}
 }

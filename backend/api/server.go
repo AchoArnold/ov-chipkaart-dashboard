@@ -6,16 +6,17 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/rs/cors"
+
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
 	"google.golang.org/grpc"
 
 	ov_chipkaart "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ov-chipkaart"
 
-	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/middlewares"
-	"github.com/gorilla/mux"
-
 	"os"
+
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/middlewares"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator/govalidator"
@@ -24,18 +25,17 @@ import (
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/logger"
 	"github.com/getsentry/sentry-go"
 
+	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/cache"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/cache/redis"
-
-	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database/mongodb"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/generated"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/resolver"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/services/jwt"
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
-	"github.com/rs/cors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

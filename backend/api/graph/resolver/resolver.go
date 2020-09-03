@@ -3,6 +3,8 @@ package resolver
 import (
 	"context"
 
+	"github.com/palantir/stacktrace"
+
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
@@ -71,7 +73,7 @@ func NewResolver(
 func (r *Resolver) languageTagFromContext(ctx context.Context) language.Tag {
 	tag, ok := ctx.Value(middlewares.ContextKeyLanguageTag).(*language.Tag)
 	if tag == nil || !ok {
-		r.errorHandler.CaptureError(ctx, errors.New("cannot fetch language tag from resolver"))
+		r.errorHandler.CaptureError(ctx, stacktrace.NewError("cannot fetch language tag from resolver"))
 		return language.English
 	}
 
@@ -80,8 +82,9 @@ func (r *Resolver) languageTagFromContext(ctx context.Context) language.Tag {
 
 func (r *Resolver) userIDFromContext(ctx context.Context) (userID id.ID, err error) {
 	userID, err = id.FromInterface(ctx.Value(middlewares.ContextKeyUserID))
-
-	r.errorHandler.CaptureError(ctx, errors.Wrap(err, "cannot fetch user id from context"))
+	if err != nil {
+		r.errorHandler.CaptureError(ctx, stacktrace.Propagate(err, "cannot fetch user id from context"))
+	}
 
 	return userID, err
 }

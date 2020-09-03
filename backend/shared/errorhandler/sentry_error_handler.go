@@ -2,6 +2,7 @@ package errorhandler
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -31,5 +32,6 @@ func NewSentryErrorHandler(options sentry.ClientOptions) (ErrorHandler, error) {
 
 // CaptureError captures an error
 func (sentry *SentryErrorHandler) CaptureError(ctx context.Context, err error) {
+	log.Println(err)
 	sentry.hub.CaptureException(errors.Wrapf(err, spew.Sdump(ctx)))
 }

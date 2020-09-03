@@ -14,12 +14,13 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.1
 	github.com/google/wire v0.4.0
-	github.com/gorilla/mux v1.7.4
+	github.com/gorilla/mux v1.7.3
 	github.com/joho/godotenv v1.3.0
 	github.com/klauspost/compress v1.10.6 // indirect
 	github.com/labstack/gommon v0.3.0
 	github.com/lunux2008/xulu v0.0.0-20160308154621-fff51ca7218e
 	github.com/mattn/go-colorable v0.1.6 // indirect
+	github.com/palantir/stacktrace v0.0.0-20161112013806-78658fd2d177
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.6.0
 	github.com/thedevsaddam/govalidator v1.9.10
