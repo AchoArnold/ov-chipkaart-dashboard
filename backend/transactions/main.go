@@ -31,7 +31,7 @@ func main() {
 		log.Fatal("error loading .env file")
 	}
 
-	log.Println("Server running ...")
+	log.Println("server running on port " + os.Getenv("SERVER_ADDRESS"))
 
 	listener, err := net.Listen("tcp", os.Getenv("SERVER_ADDRESS"))
 	if err != nil {
