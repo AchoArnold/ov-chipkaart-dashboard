@@ -9,5 +9,5 @@ import (
 type AnalyzeRequestRepository interface {
 	Store(analyzeRequest entities.AnalyzeRequest) error
 	FindByID(analyzeRequestID id.ID) (entities.AnalyzeRequest, error)
-	IndexForUser(userID id.ID, take *int, skip *int, sortBy *string, sortDirection *string) (analyzeRequests []entities.AnalyzeRequest, err error)
+	IndexForUser(userID id.ID, skip *int, limit *int, sortBy *string, sortDirection *string) (analyzeRequests []entities.AnalyzeRequest, err error)
 }

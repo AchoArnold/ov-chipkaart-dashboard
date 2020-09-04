@@ -48,8 +48,8 @@ export type AnalyzeRequest = {
   ovChipkaartNumber: Scalars['String'];
   id: Scalars['String'];
   status: Scalars['String'];
-  CreatedAt: Scalars['String'];
-  UpdatedAt: Scalars['String'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
 };
 
 export type AnalzyeRequestDetails = {

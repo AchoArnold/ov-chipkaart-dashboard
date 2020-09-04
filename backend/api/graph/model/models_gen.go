@@ -12,8 +12,8 @@ type AnalyzeRequest struct {
 	OvChipkaartNumber string `json:"ovChipkaartNumber"`
 	ID                string `json:"id"`
 	Status            string `json:"status"`
-	CreatedAt         string `json:"CreatedAt"`
-	UpdatedAt         string `json:"UpdatedAt"`
+	CreatedAt         string `json:"createdAt"`
+	UpdatedAt         string `json:"updatedAt"`
 }
 
 type AnalzyeRequestDetails struct {

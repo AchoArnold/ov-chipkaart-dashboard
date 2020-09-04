@@ -36,8 +36,8 @@ func (r *queryResolver) analyzeRequests(ctx context.Context, skip *int, limit *i
 			OvChipkaartNumber: dbResult.OvChipkaartNumber,
 			ID:                dbResult.ID.String(),
 			Status:            dbResult.Status.String(),
-			CreatedAt:         dbResult.CreatedAt.String(),
-			UpdatedAt:         dbResult.UpdatedAt.String(),
+			CreatedAt:         dbResult.CreatedAt.Format(time.DefaultFormat),
+			UpdatedAt:         dbResult.UpdatedAt.Format(time.DefaultFormat),
 		}
 	}
 

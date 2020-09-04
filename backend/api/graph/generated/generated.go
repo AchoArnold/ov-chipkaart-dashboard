@@ -116,7 +116,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "AnalyzeRequest.CreatedAt":
+	case "AnalyzeRequest.createdAt":
 		if e.complexity.AnalyzeRequest.CreatedAt == nil {
 			break
 		}
@@ -158,7 +158,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AnalyzeRequest.Status(childComplexity), true
 
-	case "AnalyzeRequest.UpdatedAt":
+	case "AnalyzeRequest.updatedAt":
 		if e.complexity.AnalyzeRequest.UpdatedAt == nil {
 			break
 		}
@@ -417,8 +417,8 @@ type AnalyzeRequest {
   ovChipkaartNumber: String!
   id: String!
   status: String!
-  CreatedAt: String!
-  UpdatedAt: String!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type AnalzyeRequestDetails {
@@ -798,7 +798,7 @@ func (ec *executionContext) _AnalyzeRequest_status(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _AnalyzeRequest_CreatedAt(ctx context.Context, field graphql.CollectedField, obj *model.AnalyzeRequest) (ret graphql.Marshaler) {
+func (ec *executionContext) _AnalyzeRequest_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.AnalyzeRequest) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -832,7 +832,7 @@ func (ec *executionContext) _AnalyzeRequest_CreatedAt(ctx context.Context, field
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _AnalyzeRequest_UpdatedAt(ctx context.Context, field graphql.CollectedField, obj *model.AnalyzeRequest) (ret graphql.Marshaler) {
+func (ec *executionContext) _AnalyzeRequest_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.AnalyzeRequest) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2816,13 +2816,13 @@ func (ec *executionContext) _AnalyzeRequest(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "CreatedAt":
-			out.Values[i] = ec._AnalyzeRequest_CreatedAt(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._AnalyzeRequest_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "UpdatedAt":
-			out.Values[i] = ec._AnalyzeRequest_UpdatedAt(ctx, field, obj)
+		case "updatedAt":
+			out.Values[i] = ec._AnalyzeRequest_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

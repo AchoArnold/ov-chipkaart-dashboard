@@ -30,8 +30,8 @@ func (repository *UserRepository) Store(user entities.User) error {
 		"last_name":  user.LastName,
 		"email":      user.Email,
 		"password":   user.Password,
-		"created_at": user.CreatedAt,
-		"updated_at": user.UpdatedAt,
+		"created_at": primitive.NewDateTimeFromTime(user.CreatedAt),
+		"updated_at": primitive.NewDateTimeFromTime(user.UpdatedAt),
 	})
 	return err
 }

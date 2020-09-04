@@ -383,7 +383,7 @@
             "deprecationReason": null
           },
           {
-            "name": "CreatedAt",
+            "name": "createdAt",
             "description": null,
             "args": [],
             "type": {
@@ -399,7 +399,7 @@
             "deprecationReason": null
           },
           {
-            "name": "UpdatedAt",
+            "name": "updatedAt",
             "description": null,
             "args": [],
             "type": {

@@ -37,8 +37,8 @@ type AnalyzeRequest {
   ovChipkaartNumber: String!
   id: String!
   status: String!
-  CreatedAt: String!
-  UpdatedAt: String!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type AnalzyeRequestDetails {

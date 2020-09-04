@@ -1,5 +1,5 @@
 import { InMemoryCache, NormalizedCacheObject } from 'apollo-cache-inmemory';
-import { ApolloClient } from 'apollo-client';
+import { ApolloClient, DefaultOptions } from 'apollo-client';
 import { createUploadLink } from 'apollo-upload-client';
 import { LOCALE_FALLBACK } from '../../constants/locales';
 import { KEY_LOCALE, KEY_TOKEN } from '../../constants/localStorage';
@@ -13,8 +13,20 @@ export const link = createUploadLink({
     },
 });
 
+const defaultOptions: DefaultOptions = {
+    watchQuery: {
+        fetchPolicy: 'no-cache',
+        errorPolicy: 'ignore',
+    },
+    query: {
+        fetchPolicy: 'no-cache',
+        errorPolicy: 'all',
+    },
+};
+
 export const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
     cache: new InMemoryCache(),
     // @ts-ignore
     link,
+    defaultOptions,
 });

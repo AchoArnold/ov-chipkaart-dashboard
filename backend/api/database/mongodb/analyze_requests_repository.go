@@ -34,16 +34,16 @@ func (repository *AnalyzeRequestRepository) Store(analyzeRequest entities.Analyz
 		"start_date":          analyzeRequest.StartDate.Format(time.DateFormat),
 		"end_date":            analyzeRequest.EndDate.Format(time.DateFormat),
 		"status":              string(analyzeRequest.Status),
-		"created_at":          analyzeRequest.CreatedAt,
-		"updated_at":          analyzeRequest.UpdatedAt,
+		"created_at":          primitive.NewDateTimeFromTime(analyzeRequest.CreatedAt),
+		"updated_at":          primitive.NewDateTimeFromTime(analyzeRequest.UpdatedAt),
 	})
 
 	return err
 }
 
 // IndexForUser fetches all the analyze requests for the given user
-func (repository *AnalyzeRequestRepository) IndexForUser(userID id.ID, take *int, skip *int, sortBy *string, sortDirection *string) (analyzeRequests []entities.AnalyzeRequest, err error) {
-	cursor, err := repository.Collection().Find(repository.DefaultTimeoutContext(), bson.M{"user_id": userID.String()}, repository.GetFindOptions(take, skip, sortBy, sortDirection))
+func (repository *AnalyzeRequestRepository) IndexForUser(userID id.ID, skip *int, limit *int, sortBy *string, sortDirection *string) (analyzeRequests []entities.AnalyzeRequest, err error) {
+	cursor, err := repository.Collection().Find(repository.DefaultTimeoutContext(), bson.M{"user_id": userID.String()}, repository.GetFindOptions(skip, limit, sortBy, sortDirection))
 	if err != nil {
 		return analyzeRequests, stacktrace.PropagateWithCode(err, errors.ErrCodeDatabaseError, "error fetching analyze requests from the database")
 	}
@@ -106,6 +106,7 @@ func (repository *AnalyzeRequestRepository) hydrateAnalyzeRequestFromDBRecord(db
 		UserID:            userID,
 		StartDate:         startDate,
 		EndDate:           endDate,
+		Status:            entities.AnalyzeRequestStatus(dbRecord["status"].(string)),
 		InputType:         dbRecord["input_type"].(string),
 		OvChipkaartNumber: dbRecord["ov_chipkaart_number"].(string),
 		CreatedAt:         dbRecord["created_at"].(primitive.DateTime).Time(),

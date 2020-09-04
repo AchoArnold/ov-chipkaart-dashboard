@@ -38,7 +38,7 @@ func (repository *RawRecordRepository) StoreMany(records []entities.RawRecord) e
 			"product_info":            record.ProductInfo,
 			"product_text":            record.ProductText,
 			"pto":                     record.Pto,
-			"transaction_datetime":    record.TransactionDateTime,
+			"transaction_datetime":    primitive.NewDateTimeFromTime(record.TransactionDateTime),
 			"transaction_info":        record.TransactionInfo,
 			"transaction_name":        record.TransactionName.String(),
 			"e_purse_mut":             record.EPurseMut,
@@ -46,8 +46,8 @@ func (repository *RawRecordRepository) StoreMany(records []entities.RawRecord) e
 			"transaction_explanation": record.TransactionExplanation,
 			"transaction_priority":    record.TransactionPriority,
 			"source":                  record.Source,
-			"created_at":              record.CreatedAt,
-			"updated_at":              record.UpdatedAt,
+			"created_at":              primitive.NewDateTimeFromTime(record.CreatedAt),
+			"updated_at":              primitive.NewDateTimeFromTime(record.UpdatedAt),
 		})
 	}
 	_, err := repository.db.Collection(repository.collection).InsertMany(context.Background(), documents)

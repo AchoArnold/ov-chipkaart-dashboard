@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ovchipkaart"
 
 	"github.com/pkg/errors"
 )
@@ -15,32 +18,32 @@ const csvDateFormat = "02-01-2006"
 
 // TransactionFetcherCSVService is the container for the Transaction Fetcher CSV Service
 type TransactionFetcherCSVService struct {
-	csvFileReader CSVFileReader
+	csvReader CSVReader
 }
 
-// CSVFileReader reads a CSV file into an array of strings
-type CSVFileReader interface {
-	ReadAll(file string) (records [][]string, err error)
+// CSVReader reads a CSV file into an array of strings
+type CSVReader interface {
+	ReadAll(data io.Reader) (records [][]string, err error)
 }
 
 // NewTransactionFetcherCSVService initializes the TransactionFetcherCSVService
-func NewTransactionFetcherCSVService(reader CSVFileReader) *TransactionFetcherCSVService {
+func NewTransactionFetcherCSVService(reader CSVReader) *TransactionFetcherCSVService {
 	return &TransactionFetcherCSVService{
-		csvFileReader: reader,
+		csvReader: reader,
 	}
 }
 
 // CSVTransactionFetchOptions is config for fetching a records from a CSV file
 type CSVTransactionFetchOptions struct {
-	fileID     string
+	data       io.Reader
 	cardNumber string
 	startDate  time.Time
 	endDate    time.Time
 }
 
 // FetchTransactionRecords returns an array of records from a CSV file.
-func (service TransactionFetcherCSVService) FetchTransactionRecords(config CSVTransactionFetchOptions) (results []RawRecord, err error) {
-	records, err := service.csvFileReader.ReadAll(config.fileID)
+func (service TransactionFetcherCSVService) FetchTransactionRecords(config CSVTransactionFetchOptions) (results []ovchipkaart.RawRecord, err error) {
+	records, err := service.csvReader.ReadAll(config.data)
 	if err != nil {
 		return results, errors.Wrapf(err, "cannot read csv file")
 	}
@@ -73,9 +76,7 @@ func (service TransactionFetcherCSVService) FetchTransactionRecords(config CSVTr
 			return results, errors.Wrapf(err, "cannot parse date into string")
 		}
 
-		source := rawRecordSourceCSV
-		transactionID := NewTransactionID()
-		results = append(results, RawRecord{
+		results = append(results, ovchipkaart.RawRecord{
 			CheckInInfo:         service.getCheckInInfo(record),
 			CheckInText:         service.getCheckInText(record),
 			Fare:                fare,
@@ -83,8 +84,6 @@ func (service TransactionFetcherCSVService) FetchTransactionRecords(config CSVTr
 			TransactionDateTime: timestamp,
 			TransactionInfo:     service.getTransactionInfo(record),
 			TransactionName:     service.getTransactionName(record),
-			Source:              &source,
-			ID:                  &transactionID,
 		})
 	}
 
@@ -104,8 +103,8 @@ func (service TransactionFetcherCSVService) getCardNumber(record []string) strin
 	return strings.Replace(record[11], " ", "", -1)
 }
 
-func (service TransactionFetcherCSVService) getTransactionName(record []string) TransactionName {
-	return TransactionName(record[6])
+func (service TransactionFetcherCSVService) getTransactionName(record []string) ovchipkaart.TransactionName {
+	return ovchipkaart.TransactionName(record[6])
 }
 
 func (service TransactionFetcherCSVService) getTransactionInfo(record []string) string {
@@ -117,7 +116,7 @@ func (service TransactionFetcherCSVService) getProductInfo(record []string) stri
 }
 
 // This returns the datetime in milliseconds to make it compatible with the API dateTime
-func (service TransactionFetcherCSVService) getTransactionDateTime(record []string) (timestamp TimeInMilliSeconds, err error) {
+func (service TransactionFetcherCSVService) getTransactionDateTime(record []string) (timestamp ovchipkaart.TimeInMilliSeconds, err error) {
 	dateString := record[0]
 	if service.isCheckInTransaction(record) {
 		dateString += " " + record[1]
@@ -131,7 +130,7 @@ func (service TransactionFetcherCSVService) getTransactionDateTime(record []stri
 		return timestamp, errors.Wrapf(err, "cannot parse date %s using format  %s", dateString, timestampFormat)
 	}
 
-	return TimeInMilliSeconds(date.UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))), err
+	return ovchipkaart.TimeInMilliSeconds(date.UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))), err
 }
 
 func (service TransactionFetcherCSVService) getFare(record []string) (fare *float64, err error) {

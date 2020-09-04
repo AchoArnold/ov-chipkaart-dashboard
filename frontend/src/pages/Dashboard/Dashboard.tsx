@@ -1,4 +1,4 @@
-import React, { MouseEvent, useRef, useState } from 'react';
+import React, { MouseEvent, useRef, useState, useEffect } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -39,6 +39,9 @@ import { sendToastNotification } from '../../services/notifications';
 import { useSnackbar } from 'notistack';
 import { VARIANT_ERROR, VARIANT_SUCCESS } from '../../constants/errors';
 import { ApiResponse } from '../../services/graphql/types';
+import { AnalyzeRequest } from '../../services/graphql/generated';
+import { format } from 'date-fns';
+import { Check } from '@material-ui/icons';
 
 const drawerWidth = 240;
 
@@ -135,6 +138,25 @@ const useStyles = makeStyles((theme: Theme) =>
             textAlign: 'center !important' as 'center',
             border: 'none',
         },
+
+        buttonLogo: {
+            marginLeft: 0,
+            marginRight: theme.spacing(1),
+        },
+
+        badgeInProgress: {
+            backgroundColor: theme.palette.grey + ' !important',
+        },
+
+        badgeDone: {
+            color: theme.palette.common.white + '!important',
+            backgroundColor: theme.palette.success.light + '!important',
+        },
+
+        badgeError: {
+            color: theme.palette.common.white + '!important',
+            backgroundColor: theme.palette.error.light + '!important',
+        },
     }),
 );
 
@@ -148,16 +170,7 @@ interface DashboardState {
     EndDate?: string;
     Loading: boolean;
     Errors?: ValidationErrorMessageBag;
-    requestRows: Array<Request>;
-}
-
-interface Request {
-    startDate: string;
-    endDate: string;
-    requestId: string;
-    status: 'processing' | 'error' | 'done';
-    createdAt: string;
-    cardNumber: string;
+    requestRows: Array<AnalyzeRequest>;
 }
 
 export default function Dashboard() {
@@ -189,9 +202,15 @@ export default function Dashboard() {
         setState(newState);
 
         DashboardAPI.storeRequest({
-            ovChipkaartUsername: state.OvChipkaartUsername,
-            ovChipkaartPassword: state.OvChipkaartPassword,
-            travelHistoryFile: state.OvChipkaartFile,
+            ovChipkaartUsername: state.uploadTravelHistory
+                ? null
+                : state.OvChipkaartUsername,
+            ovChipkaartPassword: state.uploadTravelHistory
+                ? null
+                : state.OvChipkaartPassword,
+            travelHistoryFile: state.uploadTravelHistory
+                ? state.OvChipkaartFile
+                : null,
             ovChipkaartNumber: state.OvChipkaartCardNumber,
             startDate: state.StartDate ?? '',
             endDate: state.EndDate ?? '',
@@ -205,7 +224,6 @@ export default function Dashboard() {
                 refreshRecentRequests();
             })
             .catch((response: ApiResponse<boolean>) => {
-                console.log(response);
                 sendToastNotification(
                     enqueueSnackbar,
                     response.getErrorTitle(),
@@ -225,8 +243,26 @@ export default function Dashboard() {
     };
 
     const refreshRecentRequests = () => {
-        console.log('refreshing recent requests');
+        DashboardAPI.getRecentRequests()
+            .then((response: ApiResponse<AnalyzeRequest[]>) => {
+                console.log(response);
+                setState({
+                    ...state,
+                    requestRows: response.getData(),
+                });
+            })
+            .catch((response: ApiResponse<AnalyzeRequest[]>) => {
+                sendToastNotification(
+                    enqueueSnackbar,
+                    response.getErrorTitle(),
+                    VARIANT_ERROR,
+                );
+            });
     };
+
+    useEffect(() => {
+        refreshRecentRequests();
+    }, []);
 
     return (
         <div className={classes.root}>
@@ -531,31 +567,79 @@ export default function Dashboard() {
                                             </TableCell>
                                         </TableRow>
                                     )}
-                                    {state.requestRows.map((row: Request) => (
-                                        <TableRow
-                                            hover={true}
-                                            key={row.requestId}
-                                        >
-                                            <TableCell
-                                                component="th"
-                                                scope="row"
-                                            >
-                                                {row.createdAt}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                {row.cardNumber}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                {row.startDate}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                {row.endDate}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                {row.status}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
+                                    {state.requestRows.map(
+                                        (row: AnalyzeRequest) => (
+                                            <TableRow hover={true} key={row.id}>
+                                                <TableCell
+                                                    component="th"
+                                                    scope="row"
+                                                >
+                                                    {format(
+                                                        new Date(row.createdAt),
+                                                        'do LLL yyyy',
+                                                    )}
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    {row.ovChipkaartNumber}
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    {row.startDate}
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    {row.endDate}
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    {row.status ===
+                                                        'in-progress' && (
+                                                        <Button
+                                                            size="small"
+                                                            variant="contained"
+                                                            className={
+                                                                classes.badgeInProgress
+                                                            }
+                                                            disabled
+                                                        >
+                                                            <CircularProgress
+                                                                className={
+                                                                    classes.buttonLogo
+                                                                }
+                                                                size={16}
+                                                            />
+                                                            In Progress
+                                                        </Button>
+                                                    )}
+
+                                                    {row.status === 'done' && (
+                                                        <Button
+                                                            size="small"
+                                                            variant="contained"
+                                                            disabled
+                                                            className={
+                                                                classes.badgeDone
+                                                            }
+                                                        >
+                                                            <Check />
+                                                            In Progress
+                                                        </Button>
+                                                    )}
+
+                                                    {row.status === 'error' && (
+                                                        <Button
+                                                            size="small"
+                                                            variant="contained"
+                                                            disabled
+                                                            className={
+                                                                classes.badgeDone
+                                                            }
+                                                        >
+                                                            <Check />
+                                                            In Progress
+                                                        </Button>
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        ),
+                                    )}
                                 </TableBody>
                             </Table>
                         </CardContent>

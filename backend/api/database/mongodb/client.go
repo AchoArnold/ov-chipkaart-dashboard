@@ -38,7 +38,7 @@ func (repository repository) DefaultTimeoutContext() context.Context {
 	return ctx
 }
 
-func (repository repository) GetFindOptions(take *int, skip *int, sortBy *string, sortDirection *string) *options.FindOptions {
+func (repository repository) GetFindOptions(skip *int, take *int, sortBy *string, sortDirection *string) *options.FindOptions {
 	findOptions := options.Find()
 
 	sortKey := fieldCreatedAt

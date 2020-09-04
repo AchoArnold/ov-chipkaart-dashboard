@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"log"
 	"net"
@@ -22,7 +23,8 @@ import (
 
 type server struct {
 	transactions.UnimplementedTransactionsServiceServer
-	ovChipkaartAPIClient ovchipkaart.APIClient
+	ovChipkaartAPIClient   ovchipkaart.APIClient
+	csvTransactionsService *TransactionFetcherCSVService
 }
 
 func main() {
@@ -45,26 +47,41 @@ func main() {
 		Client:       &http.Client{},
 	})
 
+	csvTransactionsService := NewTransactionFetcherCSVService(NewCSVIOReader())
+
 	srv := grpc.NewServer()
 
-	transactions.RegisterTransactionsServiceServer(srv, &server{ovChipkaartAPIClient: ovChipkaartAPIClient})
+	transactions.RegisterTransactionsServiceServer(srv, &server{ovChipkaartAPIClient: ovChipkaartAPIClient, csvTransactionsService: csvTransactionsService})
 
 	log.Fatalln(srv.Serve(listener))
 }
 
 // RawRecordsFromBytes gets the raw records form a CSV file as bytes
-func (s *server) RawRecordsFromBytes(_ context.Context, _ *transactions.BytesRawRecordsRequest) (*transactions.RawRecordsResponse, error) {
-	return nil, nil
+func (s *server) RawRecordsFromBytes(_ context.Context, request *transactions.BytesRawRecordsRequest) (*transactions.RawRecordsResponse, error) {
+	csvFile := bytes.NewBuffer(request.GetData())
+
+	records, err := s.csvTransactionsService.FetchTransactionRecords(CSVTransactionFetchOptions{
+		data:       csvFile,
+		cardNumber: request.GetCardNumber(),
+		startDate:  request.GetStartDate().AsTime(),
+		endDate:    request.GetEndDate().AsTime(),
+	})
+
+	if err != nil {
+		return nil, status.Error(codes.Code(stacktrace.GetCode(err)), err.Error())
+	}
+
+	return s.makeResponse(records)
 }
 
 // RawRecordsWithCredentials gets raw records from the ov-chipkaart API
 func (s *server) RawRecordsWithCredentials(_ context.Context, request *transactions.CredentialsRawRecordsRequest) (*transactions.RawRecordsResponse, error) {
 	records, err := s.ovChipkaartAPIClient.FetchTransactions(ovchipkaart.TransactionFetchOptions{
-		Username:   request.Username,
-		Password:   request.Password,
-		CardNumber: request.CardNumber,
-		StartDate:  request.StartDate.AsTime(),
-		EndDate:    request.EndDate.AsTime(),
+		Username:   request.GetUsername(),
+		Password:   request.GetPassword(),
+		CardNumber: request.GetCardNumber(),
+		StartDate:  request.GetStartDate().AsTime(),
+		EndDate:    request.GetEndDate().AsTime(),
 	})
 
 	if err != nil {

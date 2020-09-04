@@ -10,12 +10,12 @@ export default class DashboardApi extends BaseApi {
         input: StoreAnalyzeRequestInput,
     ): Promise<ApiResponse<boolean>> {
         const mutation: DocumentNode = gql`
-            mutation StoreAnalyzeRequest($file: Upload ){
+            mutation StoreAnalyzeRequest($file: Upload, $username : String, $password : String ){
                 storeAnalyzeRequest(
                     input:{
                         travelHistoryFile: $file,
-                        ovChipkaartUsername: "${input.ovChipkaartUsername}",
-                        ovChipkaartPassword: "${input.ovChipkaartPassword}",
+                        ovChipkaartUsername: $username,
+                        ovChipkaartPassword: $password,
                         ovChipkaartNumber: "${input.ovChipkaartNumber}",
                         startDate: "${input.startDate}",
                         endDate: "${input.endDate}",
@@ -29,11 +29,15 @@ export default class DashboardApi extends BaseApi {
                     mutation,
                     variables: {
                         file: input.travelHistoryFile,
+                        username: input.ovChipkaartUsername,
+                        password: input.ovChipkaartPassword,
                     },
                 })
                 .then((data: any) => {
                     resolve(
-                        new ApiResponse<boolean>({ data }),
+                        new ApiResponse<boolean>({
+                            data: data.data.storeAnalyzeRequest,
+                        }),
                     );
                 })
                 .catch((error: ApolloError) => {
@@ -50,7 +54,7 @@ export default class DashboardApi extends BaseApi {
         });
     }
 
-    async getRecentRequests() {
+    async getRecentRequests(): Promise<ApiResponse<AnalyzeRequest[]>> {
         const query: DocumentNode = gql`
             query {
                 analyzeRequests(
@@ -64,22 +68,31 @@ export default class DashboardApi extends BaseApi {
                     startDate
                     endDate
                     status
+                    createdAt
                 }
             }
         `;
 
-        return await this.client
-            .query({ query })
-            .then((data: any) => {
-                console.log(data);
-                return new ApiResponse<AnalyzeRequest[]>({ data });
-            })
-            .catch((error: ApolloError) => {
-                return new ApiResponse<boolean>({
-                    errorTitle: this.extractMainError(error),
-                    validationErrors: this.mapErrorToMessageBag(error),
-                    data: undefined,
+        return new Promise((resolve, reject) => {
+            this.client
+                .query({ query })
+                .then((data: any) => {
+                    console.log(data.data.analyzeRequests);
+                    resolve(
+                        new ApiResponse<AnalyzeRequest[]>({
+                            data: data.data.analyzeRequests,
+                        }),
+                    );
+                })
+                .catch((error: ApolloError) => {
+                    reject(
+                        new ApiResponse<AnalyzeRequest[]>({
+                            errorTitle: this.extractMainError(error),
+                            validationErrors: this.mapErrorToMessageBag(error),
+                            data: undefined,
+                        }),
+                    );
                 });
-            });
+        });
     }
 }
