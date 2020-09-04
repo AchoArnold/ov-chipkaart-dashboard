@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	ovchipkaart "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ov-chipkaart"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ovchipkaart"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/wrappers"

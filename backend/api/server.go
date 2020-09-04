@@ -6,13 +6,15 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/99designs/gqlgen/graphql/handler/apollotracing"
+
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/rs/cors"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
 	"google.golang.org/grpc"
 
-	ov_chipkaart "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ov-chipkaart"
+	ov_chipkaart "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ovchipkaart"
 
 	"os"
 
@@ -69,13 +71,15 @@ func main() {
 }
 
 func initializeGraphQLServer() *handler.Server {
-	return handler.NewDefaultServer(
+	server := handler.NewDefaultServer(
 		generated.NewExecutableSchema(
 			generated.Config{
 				Resolvers: initializeResolver(),
 			},
 		),
 	)
+	server.Use(apollotracing.Tracer{})
+	return server
 }
 func initializeResolver() *resolver.Resolver {
 	return resolver.NewResolver(

@@ -1,5 +1,9 @@
 package validator
 
+import (
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ovchipkaart"
+)
+
 // Helpers are custom validations that are package agnostic
 type Helpers struct {
 	ovChipkaartAPIClient ovchipkaart.APIClient
