@@ -4,6 +4,7 @@ github.com/99designs/gqlgen v0.11.3 h1:oFSxl1DFS9X///uHV3y6CEfpcXWrDUxVblR4Xib2b
 github.com/99designs/gqlgen v0.11.3/go.mod h1:RgX5GRRdDWNkh4pBrdzNpNPFVsdoUFY2+adM6nb1N+4=
 github.com/AchoArnold/homework v0.0.0-20200523123832-0ba4303bedc3 h1:O8CcASBIJqJQnCLqqF/tb0qKIwpYMOEr7UbJWgoLfXo=
 github.com/AchoArnold/homework v0.0.0-20200523123832-0ba4303bedc3/go.mod h1:gvC7v8Z5IyTKpb/fNyO6DCoE+3V+BG2PMk/0AAvubxU=
+github.com/AchoArnold/ov-chipkaart-dashboard v0.0.0-20200904101756-d23f53030df3 h1:h54O0b5NQ/faNAFTyjxsX6d1QplJ+epekYf+tw1WlGU=
 github.com/AndreasBriese/bbloom v0.0.0-20190306092124-e2d15f34fcf9/go.mod h1:bOvUY6CB00SOBii9/FifXqc0awNKxLFCL/+pkDPuyl8=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/CloudyKit/fastprinter v0.0.0-20170127035650-74b38d55f37a/go.mod h1:EFZQ978U7x8IRnstaskI3IysnWY5Ao3QgZUKOXlsAdw=

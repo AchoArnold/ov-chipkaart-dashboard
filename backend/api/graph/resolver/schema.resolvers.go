@@ -35,8 +35,8 @@ func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 	return &model.User{}, nil
 }
 
-func (r *queryResolver) AnalyzeRequests(ctx context.Context, skip *int, take *int, orderBy *string) ([]*model.AnalzyeRequestDetails, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) AnalyzeRequests(ctx context.Context, skip *int, take *int, orderBy *string, orderDirection *string) ([]*model.AnalyzeRequest, error) {
+	return r.analyzeRequests(ctx, skip, take, orderBy, orderDirection)
 }
 
 // Mutation returns generated.MutationResolver implementation.

@@ -31,8 +31,8 @@ func (r *mutationResolver) createUser(ctx context.Context, input model.CreateUse
 		LastName:  input.LastName,
 		Email:     input.Email,
 		Password:  hashedPassword,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
 	}
 
 	err = r.db.UserRepository().Store(user)

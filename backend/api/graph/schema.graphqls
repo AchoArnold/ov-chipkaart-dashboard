@@ -34,9 +34,11 @@ type AuthOutput {
 type AnalyzeRequest {
   startDate: String!
   endDate: String!
-  ovChipkaartNummber: String!
+  ovChipkaartNumber: String!
   id: String!
   status: String!
+  CreatedAt: String!
+  UpdatedAt: String!
 }
 
 type AnalzyeRequestDetails {
@@ -70,7 +72,7 @@ input StoreAnalyzeRequestInput {
 "The `Query` type, represents all of the entry points into our object graph."
 type Query {
   user: User!
-  analyzeRequests(skip: Int, take: Int, orderBy: String): [AnalzyeRequestDetails!]!
+  analyzeRequests(skip: Int, take: Int, orderBy: String, orderDirection: String): [AnalyzeRequest!]!
 }
 
 "The `Mutation` type, represents all updates we can make to our data."

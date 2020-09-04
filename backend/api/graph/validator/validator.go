@@ -24,4 +24,5 @@ type Validator interface {
 	ValidateCreateUserInput(input model.CreateUserInput, localeTag language.Tag) ValidationResult
 	ValidateLoginInput(input model.LoginInput, localeTag language.Tag) ValidationResult
 	ValidateStoreAnalzyeRequest(input model.StoreAnalyzeRequestInput, localTag language.Tag) ValidationResult
+	ValidateAnalzyeRequestsInput(skip *int, take *int, orderBy *string, orderDirection *string, localTag language.Tag) ValidationResult
 }

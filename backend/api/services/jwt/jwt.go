@@ -45,9 +45,9 @@ func (service Service) GenerateTokenForUserID(UserID id.ID) (result string, err 
 	claims := token.Claims.(jwt.MapClaims)
 
 	/* Set token claims */
-	claims[keyExp] = time.Now().AddDate(0, 0, service.sessionDays)
-	claims["nbf"] = time.Now().Unix()
-	claims["iat"] = time.Now().Unix()
+	claims[keyExp] = time.Now().UTC().AddDate(0, 0, service.sessionDays)
+	claims["nbf"] = time.Now().UTC().Unix()
+	claims["iat"] = time.Now().UTC().Unix()
 	claims[keyUserID] = UserID.String()
 
 	result, err = token.SignedString(service.secret)
@@ -73,7 +73,7 @@ func (service Service) InvalidateToken(tokenString string) (err error) {
 		return nil
 	}
 
-	return service.cache.Set(tokenString, "", claims[keyExp].(time.Time).Sub(time.Now()))
+	return service.cache.Set(tokenString, "", claims[keyExp].(time.Time).Sub(time.Now().UTC()))
 }
 
 //GetUserIDFromToken parses a jwt token and returns the email it it's claims

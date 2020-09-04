@@ -54,15 +54,15 @@ func (middleware Client) LogRequest(logger logger.Logger) func(http.Handler) htt
 				}
 			}()
 
-			start := time.Now()
+			start := time.Now().UTC()
 			wrapped := wrapResponseWriter(w)
 			next.ServeHTTP(wrapped, r)
 			_ = logger.Log(
-				"at", time.Now().Format(internalTime.DefaultFormat),
+				"at", time.Now().UTC().Format(internalTime.DefaultFormat),
 				"status", wrapped.status,
 				"method", r.Method,
 				"path", r.URL.EscapedPath(),
-				"duration", time.Since(start),
+				"duration", time.Now().UTC().Sub(start),
 				"ip", r.RemoteAddr,
 			)
 		}

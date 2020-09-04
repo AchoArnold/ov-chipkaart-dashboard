@@ -104,12 +104,12 @@ func NewAPIService(config APIServiceConfig) APIClient {
 func (client APIClient) GetAuthorisationToken(username string, password string) (authorisationToken string, err error) {
 	authenticationToken, err := client.getAuthenticationToken(username, password)
 	if err != nil {
-		return authorisationToken, stacktrace.PropagateWithCode(err, ErrCodeUnauthorized, "could not fetch authentication token")
+		return authorisationToken, stacktrace.PropagateWithCode(err, stacktrace.GetCode(err), "could not fetch authentication token")
 	}
 
 	authorisationTokenResponse, err := client.getAuthorisationToken(authenticationToken)
 	if err != nil {
-		return authorisationToken, stacktrace.PropagateWithCode(err, ErrCodeUnauthorized, "could not fetch authorisation token")
+		return authorisationToken, stacktrace.PropagateWithCode(err, stacktrace.GetCode(err), "could not fetch authorisation token")
 	}
 
 	return authorisationTokenResponse.Value, err
@@ -242,21 +242,21 @@ func (client APIClient) getAuthenticationToken(username, password string) (authe
 
 	request, err := client.createPostRequest(endpointAuthentication, payload)
 	if err != nil {
-		return authenticationToken, stacktrace.Propagate(err, "cannot create authentication request")
+		return authenticationToken, stacktrace.PropagateWithCode(err, ErrCodeInternalServerError, "cannot create authentication request")
 	}
 
 	response, err := client.doHTTPRequest(request)
 	if err != nil {
-		return authenticationToken, stacktrace.Propagate(err, "cannot perform authentication request")
+		return authenticationToken, stacktrace.PropagateWithCode(err, ErrCodeInternalServerError, "cannot perform authentication request")
 	}
 
 	err = json.JsonDecode(&authenticationToken, response.Body)
 	if err != nil {
-		return authenticationToken, stacktrace.Propagate(err, "cannot decode authentication token response")
+		return authenticationToken, stacktrace.PropagateWithCode(err, ErrCodeInternalServerError, "cannot decode authentication token response")
 	}
 
 	if authenticationToken.Error != "" {
-		return authenticationToken, stacktrace.Propagate(errors.New(authenticationToken.Error), authenticationToken.ErrorDescription)
+		return authenticationToken, stacktrace.PropagateWithCode(errors.New(authenticationToken.Error), ErrCodeUnauthorized, authenticationToken.ErrorDescription)
 	}
 
 	return authenticationToken, nil

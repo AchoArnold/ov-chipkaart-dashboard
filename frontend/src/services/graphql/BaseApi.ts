@@ -5,6 +5,7 @@ import { ERROR_MESSAGE_INTERNAL_SERVER_ERROR } from '../../constants/errors';
 import { ValidationErrorMessageBag } from '../../domain/ValidationErrorMessageBag';
 import MessageBag from '../message-bag/MessageBag';
 import { ValidationError } from '../../domain/ValidationError';
+import _ from 'lodash';
 
 const VALIDATION_ERROR_CODE = 'VALIDATION_ERROR';
 
@@ -50,9 +51,10 @@ export default class BaseApi {
             })
             .forEach((element: GraphQLError) => {
                 if (element.path !== undefined) {
+                    let key = element.path[element.path.length - 1].toString();
                     let validationError: ValidationError = {
-                        key: element.path[element.path.length - 1].toString(),
-                        message: element.message,
+                        key: key,
+                        message: element.message.replace(key, _.startCase(key)),
                     };
                     messageBag.add(validationError.key, validationError);
                 }

@@ -16,6 +16,11 @@ const (
 // AnalyzeRequestStatus is the status of the request
 type AnalyzeRequestStatus string
 
+// String converts form status to string
+func (status AnalyzeRequestStatus) String() string {
+	return string(status)
+}
+
 const (
 	// AnalyzeRequestStatusInProgress indicates that the request is in progress
 	AnalyzeRequestStatusInProgress = AnalyzeRequestStatus("in-progress")

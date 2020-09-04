@@ -2,8 +2,8 @@ import React, { useState, MouseEvent, ChangeEvent } from 'react';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
-import ROUTE_NAMES from '../../constants/routes';
-import { Link } from 'react-router-dom';
+import ROUTE_NAMES, { ROUTE_DASHBOARD } from '../../constants/routes';
+import { Link, useHistory } from 'react-router-dom';
 import Logo from '../../components/Logo';
 import Typography from '@material-ui/core/Typography';
 import { useTranslation } from 'react-i18next';
@@ -16,14 +16,16 @@ import Checkbox from '@material-ui/core/Checkbox';
 import GoogleInvisibleCaptcha from '../../components/GoogleInvisibleCaptcha';
 import useTheme from '@material-ui/core/styles/useTheme';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { ApiService } from '../../serviceProvider';
+import { LandingPageAPI } from '../../serviceProvider';
 import { ValidationErrorMessageBag } from '../../domain/ValidationErrorMessageBag';
 import {
     CreateUserResponse,
     LoginResponse,
 } from '../../services/graphql/types';
-import { VariantType, useSnackbar } from 'notistack';
+import { useSnackbar } from 'notistack';
 import { VARIANT_ERROR, VARIANT_SUCCESS } from '../../constants/errors';
+import { sendToastNotification } from '../../services/notifications';
+import { KEY_TOKEN } from '../../constants/localStorage';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -109,6 +111,7 @@ export default function LandingPage() {
     const classes = useStyles();
     const { t } = useTranslation();
     const theme = useTheme();
+    const history = useHistory();
     const { enqueueSnackbar } = useSnackbar();
     const [state, setState] = useState({
         signUpActive: true,
@@ -124,14 +127,19 @@ export default function LandingPage() {
 
     const handleLogin = () => {
         let newState = beforeApiRequest();
-        ApiService.login({
+        let requiresStateUpdate = true;
+        LandingPageAPI.login({
             email: state.email,
             password: state.password,
             rememberMe: state.rememberMe,
             reCaptcha: 'how are you',
         })
             .then((response: LoginResponse) => {
-                sendToastNotification(response.getErrorTitle(), VARIANT_ERROR);
+                sendToastNotification(
+                    enqueueSnackbar,
+                    response.getErrorTitle(),
+                    VARIANT_ERROR,
+                );
                 if (response.hasValidationErrors()) {
                     newState = {
                         ...newState,
@@ -141,23 +149,33 @@ export default function LandingPage() {
                 }
 
                 if (response.isValid()) {
+                    localStorage.setItem(
+                        KEY_TOKEN,
+                        response.getData().token.value,
+                    );
+
                     sendToastNotification(
+                        enqueueSnackbar,
                         t('Login successful!'),
                         VARIANT_SUCCESS,
                     );
+                    requiresStateUpdate = false;
+                    history.push(ROUTE_DASHBOARD);
                 }
             })
             .finally(() => {
-                setState({
-                    ...newState,
-                    loading: false,
-                });
+                if (requiresStateUpdate) {
+                    setState({
+                        ...newState,
+                        loading: false,
+                    });
+                }
             });
     };
 
     const handleSignUp = () => {
         let newState = beforeApiRequest();
-        ApiService.signUp({
+        LandingPageAPI.signUp({
             email: state.email,
             password: state.password,
             firstName: state.firstName,
@@ -165,7 +183,11 @@ export default function LandingPage() {
             reCaptcha: 'how are you',
         })
             .then((response: CreateUserResponse) => {
-                sendToastNotification(response.getErrorTitle(), VARIANT_ERROR);
+                sendToastNotification(
+                    enqueueSnackbar,
+                    response.getErrorTitle(),
+                    VARIANT_ERROR,
+                );
                 if (response.hasValidationErrors()) {
                     newState = {
                         ...newState,
@@ -176,6 +198,7 @@ export default function LandingPage() {
 
                 if (response.isValid()) {
                     sendToastNotification(
+                        enqueueSnackbar,
                         t('Sign up successful!'),
                         VARIANT_SUCCESS,
                     );
@@ -200,15 +223,6 @@ export default function LandingPage() {
         setState(newState);
 
         return newState;
-    };
-
-    const sendToastNotification = (
-        message: string | undefined,
-        variant: VariantType,
-    ) => {
-        if (message !== undefined && message !== '') {
-            enqueueSnackbar(message, { variant });
-        }
     };
 
     return (

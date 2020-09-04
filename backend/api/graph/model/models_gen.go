@@ -7,11 +7,13 @@ import (
 )
 
 type AnalyzeRequest struct {
-	StartDate          string `json:"startDate"`
-	EndDate            string `json:"endDate"`
-	OvChipkaartNummber string `json:"ovChipkaartNummber"`
-	ID                 string `json:"id"`
-	Status             string `json:"status"`
+	StartDate         string `json:"startDate"`
+	EndDate           string `json:"endDate"`
+	OvChipkaartNumber string `json:"ovChipkaartNumber"`
+	ID                string `json:"id"`
+	Status            string `json:"status"`
+	CreatedAt         string `json:"CreatedAt"`
+	UpdatedAt         string `json:"UpdatedAt"`
 }
 
 type AnalzyeRequestDetails struct {

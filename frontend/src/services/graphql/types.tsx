@@ -41,6 +41,10 @@ export class ApiResponse<T> {
         this.data = options.data;
     }
 
+    getData(): any {
+        return this.data;
+    }
+
     getValidationErrors(): ValidationErrorMessageBag | undefined {
         return this.validationErrors;
     }

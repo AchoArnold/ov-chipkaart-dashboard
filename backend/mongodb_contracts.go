@@ -27,9 +27,8 @@ const (
 
 // db keys names
 const (
-	keyCreatedAt     = "created_at"
-	keyUpdatedAt     = "updated_at"
-	keyTransactionID = "transaction_id"
+	keyCreatedAt = "created_at"
+	keyUpdatedAt = "updated_at"
 )
 
 const dbOperationTimeout = 5 * time.Second

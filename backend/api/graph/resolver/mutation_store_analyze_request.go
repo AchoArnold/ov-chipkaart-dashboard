@@ -46,8 +46,8 @@ func (r *mutationResolver) storeAnalyzeRequest(ctx context.Context, input model.
 		StartDate:         startDate,
 		EndDate:           endDate,
 		Status:            entities.AnalyzeRequestStatusInProgress,
-		CreatedAt:         time.Now(),
-		UpdatedAt:         time.Now(),
+		CreatedAt:         time.Now().UTC(),
+		UpdatedAt:         time.Now().UTC(),
 	}
 
 	grpcCtx := context.WithValue(context.Background(), internalContext.KeyAnalyzeRequestID, analyzeRequest.ID.String())
@@ -99,9 +99,8 @@ func (r *mutationResolver) storeAnalyzeRequest(ctx context.Context, input model.
 	}
 
 	if len(recordsResponse.RawRecords) == 0 {
-		r.addError(ctx, "ovChipkaartNumber", "There are no transactions for this ov chipkaart number for the date range provided", CodeValidationError)
-		r.addError(ctx, "startDate", "There are no transactions for this ov chipkaart number for the date range provided", CodeValidationError)
-		r.addError(ctx, "endDate", "There are no transactions for this ov chipkaart number for the date range provided", CodeValidationError)
+		r.addError(ctx, "startDate", "There are no transactions within this date range", CodeValidationError)
+		r.addError(ctx, "endDate", "There are no transactions within this date range", CodeValidationError)
 		return false, errors.New("error while processing ov chipkaart transactions")
 	}
 
@@ -138,8 +137,8 @@ func (r *mutationResolver) storeAnalyzeRequest(ctx context.Context, input model.
 			TransactionExplanation: record.GetTransactionExplanation(),
 			TransactionPriority:    record.GetTransactionPriority(),
 			Source:                 source,
-			CreatedAt:              time.Now(),
-			UpdatedAt:              time.Now(),
+			CreatedAt:              time.Now().UTC(),
+			UpdatedAt:              time.Now().UTC(),
 		}
 	}
 

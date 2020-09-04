@@ -6,6 +6,8 @@ import (
 	"net/url"
 	time2 "time"
 
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ovchipkaart"
+
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/time"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
@@ -119,12 +121,43 @@ func (service GoValidator) ValidateStoreAnalzyeRequest(input model.StoreAnalyzeR
 		err := service.helpers.ValidateOvChipkaartCredentials(*input.OvChipkaartUsername, *input.OvChipkaartPassword)
 		if err != nil {
 			service.errorHandler.CaptureError(context.Background(), err)
-			values.Add("ovChipkaartUsername", "Invalid OV Chipkaart username or password")
-			values.Add("ovChipkaartPassword", "Invalid OV Chipkaart username or password")
+			if stacktrace.GetCode(err) == ovchipkaart.ErrCodeUnauthorized {
+				values.Add("ovChipkaartUsername", "Invalid OV Chipkaart username or password")
+				values.Add("ovChipkaartPassword", "Invalid OV Chipkaart username or password")
+			} else {
+				values.Add("ovChipkaartUsername", "Internal error while verifying your ov chipkaart username")
+				values.Add("ovChipkaartPassword", "Internal error while verifying your ov chipkaart password")
+			}
 		}
 	}
 
 	return service.urlValuesToResult(values)
+}
+
+// ValidateAnalzyeRequestsInput validates the analyze request query inputs
+func (service GoValidator) ValidateAnalzyeRequestsInput(skip *int, take *int, orderBy *string, orderDirection *string, _ language.Tag) validator.ValidationResult {
+	input := struct {
+		skip, take              *int
+		orderBy, orderDirection *string
+	}{
+		skip,
+		take,
+		orderBy,
+		orderDirection,
+	}
+
+	v := govalidator.New(govalidator.Options{
+		Data: &input,
+		Rules: govalidator.MapData{
+			"skip":           []string{"numeric", "min:0"},
+			"take":           []string{"numeric", "min:0"},
+			"orderBy":        []string{"in:createdAt,ovChipkaartNumber,startDate,EndDate"},
+			"orderDirection": []string{"in:DESC,desc,ASC,asc"},
+		},
+	})
+
+	return service.urlValuesToResult(v.ValidateStruct())
+
 }
 
 func (service GoValidator) urlValuesToResult(value url.Values) validator.ValidationResult {

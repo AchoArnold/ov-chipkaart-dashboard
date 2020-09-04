@@ -34,6 +34,11 @@ import Table from '@material-ui/core/Table';
 import TableCell from '@material-ui/core/TableCell';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
+import { DashboardAPI } from '../../serviceProvider';
+import { sendToastNotification } from '../../services/notifications';
+import { useSnackbar } from 'notistack';
+import { VARIANT_ERROR, VARIANT_SUCCESS } from '../../constants/errors';
+import { ApiResponse } from '../../services/graphql/types';
 
 const drawerWidth = 240;
 
@@ -160,6 +165,7 @@ export default function Dashboard() {
     const theme = useTheme();
     const { t } = useTranslation();
     const refFileInput = useRef(null);
+    const { enqueueSnackbar } = useSnackbar();
 
     const [state, setState] = useState({
         OvChipkaartUsername: '',
@@ -175,10 +181,51 @@ export default function Dashboard() {
     } as DashboardState);
 
     const handleNewRequest = () => {
-        setState({
+        let newState: DashboardState = {
             ...state,
+            Errors: undefined,
             Loading: true,
-        });
+        };
+        setState(newState);
+
+        DashboardAPI.storeRequest({
+            ovChipkaartUsername: state.OvChipkaartUsername,
+            ovChipkaartPassword: state.OvChipkaartPassword,
+            travelHistoryFile: state.OvChipkaartFile,
+            ovChipkaartNumber: state.OvChipkaartCardNumber,
+            startDate: state.StartDate ?? '',
+            endDate: state.EndDate ?? '',
+        })
+            .then(() => {
+                sendToastNotification(
+                    enqueueSnackbar,
+                    'Analyze request added successfully!',
+                    VARIANT_SUCCESS,
+                );
+                refreshRecentRequests();
+            })
+            .catch((response: ApiResponse<boolean>) => {
+                console.log(response);
+                sendToastNotification(
+                    enqueueSnackbar,
+                    response.getErrorTitle(),
+                    VARIANT_ERROR,
+                );
+                newState = {
+                    ...newState,
+                    Errors: response.getValidationErrors(),
+                };
+            })
+            .finally(() => {
+                setState({
+                    ...newState,
+                    Loading: false,
+                });
+            });
+    };
+
+    const refreshRecentRequests = () => {
+        console.log('refreshing recent requests');
     };
 
     return (
@@ -288,15 +335,15 @@ export default function Dashboard() {
                                         required
                                         fullWidth
                                         error={state.Errors?.has(
-                                            'ov-chipkaart-username',
+                                            'ovChipkaartUsername',
                                         )}
                                         helperText={
                                             state.Errors?.first(
-                                                'ov-chipkaart-username',
+                                                'ovChipkaartUsername',
                                             )?.message
                                         }
                                         size="small"
-                                        key="ov-chipkaart-username"
+                                        key="ovChipkaartUsername"
                                         label={t('OV Chipkaart Username')}
                                         autoComplete="off"
                                         variant="outlined"
@@ -316,16 +363,16 @@ export default function Dashboard() {
                                         required
                                         fullWidth
                                         error={state.Errors?.has(
-                                            'ov-chipkaart-password',
+                                            'ovChipkaartPassword',
                                         )}
                                         helperText={
                                             state.Errors?.first(
-                                                'ov-chipkaart-password',
+                                                'ovChipkaartPassword',
                                             )?.message
                                         }
                                         size="small"
                                         type="password"
-                                        key="ov-chipkaart-password"
+                                        key="ovChipkaartPassword"
                                         label={t('OV Chipkaart Password')}
                                         autoComplete="off"
                                         variant="outlined"
@@ -344,15 +391,14 @@ export default function Dashboard() {
                                     required
                                     fullWidth
                                     error={state.Errors?.has(
-                                        'ov-chipkaart-number',
+                                        'ovChipkaartNumber',
                                     )}
                                     helperText={
-                                        state.Errors?.first(
-                                            'ov-chipkaart-number',
-                                        )?.message
+                                        state.Errors?.first('ovChipkaartNumber')
+                                            ?.message
                                     }
                                     size="small"
-                                    key="ov-chipkaart-card-number"
+                                    key="ovChipkaartNumber"
                                     label={t('OV Chipkaart Number')}
                                     autoComplete="off"
                                     variant="outlined"
@@ -371,14 +417,14 @@ export default function Dashboard() {
                                     <TextField
                                         required
                                         fullWidth
-                                        error={state.Errors?.has('start-date')}
+                                        error={state.Errors?.has('startDate')}
                                         helperText={
-                                            state.Errors?.first('start-date')
+                                            state.Errors?.first('startDate')
                                                 ?.message
                                         }
                                         type="date"
                                         size="small"
-                                        key="start-date"
+                                        key="startDate"
                                         label={t('Start Date')}
                                         autoComplete="off"
                                         variant="outlined"
@@ -399,14 +445,14 @@ export default function Dashboard() {
                                         required
                                         fullWidth
                                         disabled={state.Loading}
-                                        error={state.Errors?.has('end-date')}
+                                        error={state.Errors?.has('endDate')}
                                         helperText={
-                                            state.Errors?.first('end-date')
+                                            state.Errors?.first('endDate')
                                                 ?.message
                                         }
                                         type="date"
                                         size="small"
-                                        key="end-date"
+                                        key="endDate"
                                         label={t('End Date')}
                                         autoComplete="off"
                                         variant="outlined"

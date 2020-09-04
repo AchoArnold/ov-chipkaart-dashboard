@@ -7,7 +7,10 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The `UploadFile, // b.txt` scalar type represents a multipart file upload. */
+  Upload: any;
 };
+
 
 export type User = {
   __typename?: 'User';
@@ -24,11 +27,6 @@ export type Token = {
   value: Scalars['String'];
 };
 
-export type Query = {
-  __typename?: 'Query';
-  user: User;
-};
-
 export type CreateUserInput = {
   firstName: Scalars['String'];
   lastName: Scalars['String'];
@@ -41,6 +39,22 @@ export type AuthOutput = {
   __typename?: 'AuthOutput';
   user: User;
   token: Token;
+};
+
+export type AnalyzeRequest = {
+  __typename?: 'AnalyzeRequest';
+  startDate: Scalars['String'];
+  endDate: Scalars['String'];
+  ovChipkaartNumber: Scalars['String'];
+  id: Scalars['String'];
+  status: Scalars['String'];
+  CreatedAt: Scalars['String'];
+  UpdatedAt: Scalars['String'];
+};
+
+export type AnalzyeRequestDetails = {
+  __typename?: 'AnalzyeRequestDetails';
+  analyzeRequestId: Scalars['String'];
 };
 
 export type CancelTokenInput = {
@@ -58,32 +72,69 @@ export type LoginInput = {
   reCaptcha: Scalars['String'];
 };
 
+export type StoreAnalyzeRequestInput = {
+  ovChipkaartUsername?: Maybe<Scalars['String']>;
+  ovChipkaartPassword?: Maybe<Scalars['String']>;
+  travelHistoryFile?: Maybe<Scalars['Upload']>;
+  startDate: Scalars['String'];
+  endDate: Scalars['String'];
+  ovChipkaartNumber: Scalars['String'];
+};
+
+/** The `Query` type, represents all of the entry points into our object graph. */
+export type Query = {
+  __typename?: 'Query';
+  user: User;
+  analyzeRequests: Array<AnalyzeRequest>;
+};
+
+
+/** The `Query` type, represents all of the entry points into our object graph. */
+export type QueryAnalyzeRequestsArgs = {
+  skip?: Maybe<Scalars['Int']>;
+  take?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Scalars['String']>;
+  orderDirection?: Maybe<Scalars['String']>;
+};
+
+/** The `Mutation` type, represents all updates we can make to our data. */
 export type Mutation = {
   __typename?: 'Mutation';
   createUser: AuthOutput;
   login: AuthOutput;
   cancelToken: Scalars['Boolean'];
   refreshToken: Scalars['String'];
+  storeAnalyzeRequest: Scalars['Boolean'];
 };
 
 
+/** The `Mutation` type, represents all updates we can make to our data. */
 export type MutationCreateUserArgs = {
   input: CreateUserInput;
 };
 
 
+/** The `Mutation` type, represents all updates we can make to our data. */
 export type MutationLoginArgs = {
   input: LoginInput;
 };
 
 
+/** The `Mutation` type, represents all updates we can make to our data. */
 export type MutationCancelTokenArgs = {
   input: CancelTokenInput;
 };
 
 
+/** The `Mutation` type, represents all updates we can make to our data. */
 export type MutationRefreshTokenArgs = {
   input: RefreshTokenInput;
+};
+
+
+/** The `Mutation` type, represents all updates we can make to our data. */
+export type MutationStoreAnalyzeRequestArgs = {
+  input: StoreAnalyzeRequestInput;
 };
 
 export type Unnamed_1_MutationVariables = {};
@@ -102,4 +153,3 @@ export type Unnamed_1_Mutation = (
     ) }
   ) }
 );
-
