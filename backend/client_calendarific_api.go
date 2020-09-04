@@ -81,7 +81,7 @@ func (apiClient CalendarificAPIClient) FetchNationalHolidays(timestamp time.Time
 	}
 
 	if apiResponse.Meta.ErrorType != nil {
-		return holidays, errors.Wrapf(err, "%s: %s", apiResponse.Meta.ErrorType, apiResponse.Meta.ErrorDetail)
+		return holidays, errors.Wrapf(err, "%s: %s", *apiResponse.Meta.ErrorType, *apiResponse.Meta.ErrorDetail)
 	}
 
 	for _, holiday := range apiResponse.Response.Holidays {
