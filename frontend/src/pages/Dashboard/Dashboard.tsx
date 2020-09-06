@@ -40,8 +40,9 @@ import { useSnackbar } from 'notistack';
 import { VARIANT_ERROR, VARIANT_SUCCESS } from '../../constants/errors';
 import { ApiResponse } from '../../services/graphql/types';
 import { AnalyzeRequest } from '../../services/graphql/generated';
-import { format } from 'date-fns';
 import { Check } from '@material-ui/icons';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import { localeDate } from '../../services/formatters';
 
 const drawerWidth = 240;
 
@@ -164,10 +165,11 @@ interface DashboardState {
     OvChipkaartUsername: string;
     OvChipkaartPassword: string;
     OvChipkaartFile?: File;
-    OvChipkaartCardNumber: string;
+    OvChipkaartNumber: string;
     uploadTravelHistory: boolean;
     StartDate?: string;
     EndDate?: string;
+    AuthorizedRequestsFetched: boolean;
     Loading: boolean;
     Errors?: ValidationErrorMessageBag;
     requestRows: Array<AnalyzeRequest>;
@@ -184,13 +186,14 @@ export default function Dashboard() {
         OvChipkaartUsername: '',
         OvChipkaartPassword: '',
         OvChipkaartFile: undefined,
-        OvChipkaartCardNumber: '',
+        OvChipkaartNumber: '',
         StartDate: undefined,
         EndDate: undefined,
         uploadTravelHistory: false,
         Loading: false,
         requestRows: [],
         Errors: undefined,
+        AuthorizedRequestsFetched: false,
     } as DashboardState);
 
     const handleNewRequest = () => {
@@ -211,17 +214,18 @@ export default function Dashboard() {
             travelHistoryFile: state.uploadTravelHistory
                 ? state.OvChipkaartFile
                 : null,
-            ovChipkaartNumber: state.OvChipkaartCardNumber,
+            ovChipkaartNumber: state.OvChipkaartNumber,
             startDate: state.StartDate ?? '',
             endDate: state.EndDate ?? '',
         })
-            .then(() => {
+            .then(async () => {
                 sendToastNotification(
                     enqueueSnackbar,
                     'Analyze request added successfully!',
                     VARIANT_SUCCESS,
                 );
-                refreshRecentRequests();
+                await refreshRecentRequests(newState);
+                newState = resetForm(newState);
             })
             .catch((response: ApiResponse<boolean>) => {
                 sendToastNotification(
@@ -242,10 +246,9 @@ export default function Dashboard() {
             });
     };
 
-    const refreshRecentRequests = () => {
-        DashboardAPI.getRecentRequests()
+    const refreshRecentRequests = async (state: DashboardState) => {
+        await DashboardAPI.getRecentRequests()
             .then((response: ApiResponse<AnalyzeRequest[]>) => {
-                console.log(response);
                 setState({
                     ...state,
                     requestRows: response.getData(),
@@ -261,9 +264,28 @@ export default function Dashboard() {
     };
 
     useEffect(() => {
-        refreshRecentRequests();
+        refreshRecentRequests(state);
     }, []);
 
+    const resetForm = (state: DashboardState) => {
+        let form: HTMLFormElement = document.getElementById(
+            'analyze-request-form',
+        ) as HTMLFormElement;
+
+        form.reset();
+
+        return {
+            ...state,
+            OvChipkaartUsername: '',
+            OvChipkaartPassword: '',
+            OvChipkaartFile: undefined,
+            OvChipkaartNumber: '',
+            StartDate: undefined,
+            EndDate: undefined,
+        };
+    };
+
+    // @ts-ignore
     return (
         <div className={classes.root}>
             <CssBaseline />
@@ -309,7 +331,7 @@ export default function Dashboard() {
             <main className={classes.content}>
                 <Toolbar />
                 <Box width="100%">
-                    <form autoComplete="off">
+                    <form autoComplete="off" id="analyze-request-form">
                         <Card className={classes.form} variant="outlined">
                             <CardContent className={classes.formContents}>
                                 <FormControlLabel
@@ -336,7 +358,11 @@ export default function Dashboard() {
                                 {state.uploadTravelHistory && (
                                     <div className={classes.fileInputLabel}>
                                         <div>
-                                            <InputLabel>
+                                            <InputLabel
+                                                error={state.Errors?.has(
+                                                    'travelHistoryFile',
+                                                )}
+                                            >
                                                 {t(
                                                     'OV Chipkaart Travel History CSV *',
                                                 )}
@@ -351,6 +377,9 @@ export default function Dashboard() {
                                             key="travel-history-csv"
                                             autoComplete="off"
                                             margin="dense"
+                                            error={state.Errors?.has(
+                                                'travelHistoryFile',
+                                            )}
                                             disabled={state.Loading}
                                             labelWidth={200}
                                             onChange={() => {
@@ -363,6 +392,21 @@ export default function Dashboard() {
                                                 });
                                             }}
                                         />
+                                        {state.Errors?.has(
+                                            'travelHistoryFile',
+                                        ) && (
+                                            <FormHelperText
+                                                error={state.Errors?.has(
+                                                    'travelHistoryFile',
+                                                )}
+                                            >
+                                                {
+                                                    state.Errors?.first(
+                                                        'travelHistoryFile',
+                                                    )?.message
+                                                }
+                                            </FormHelperText>
+                                        )}
                                     </div>
                                 )}
                                 {!state.uploadTravelHistory && (
@@ -438,12 +482,13 @@ export default function Dashboard() {
                                     label={t('OV Chipkaart Number')}
                                     autoComplete="off"
                                     variant="outlined"
+                                    type="number"
                                     disabled={state.Loading}
-                                    value={state.OvChipkaartCardNumber}
+                                    value={state.OvChipkaartNumber}
                                     onChange={(event: any) => {
                                         setState({
                                             ...state,
-                                            OvChipkaartCardNumber:
+                                            OvChipkaartNumber:
                                                 event.target.value,
                                         });
                                     }}
@@ -574,19 +619,19 @@ export default function Dashboard() {
                                                     component="th"
                                                     scope="row"
                                                 >
-                                                    {format(
-                                                        new Date(row.createdAt),
-                                                        'do LLL yyyy',
-                                                    )}
+                                                    {localeDate(row.createdAt)}
                                                 </TableCell>
                                                 <TableCell align="right">
-                                                    {row.ovChipkaartNumber}
+                                                    {row.ovChipkaartNumber
+                                                        .match(/.{1,4}/g)
+                                                        ?.join(' ')
+                                                        .trim()}
                                                 </TableCell>
                                                 <TableCell align="right">
-                                                    {row.startDate}
+                                                    {localeDate(row.startDate)}
                                                 </TableCell>
                                                 <TableCell align="right">
-                                                    {row.endDate}
+                                                    {localeDate(row.endDate)}
                                                 </TableCell>
                                                 <TableCell align="right">
                                                     {row.status ===

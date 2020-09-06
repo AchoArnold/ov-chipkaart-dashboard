@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler/apollotracing"
 
@@ -171,7 +172,8 @@ func initializeErrorHandler() errorhandler.ErrorHandler {
 }
 
 func initializeTransactionsServiceClient() transactions.TransactionsServiceClient {
-	conn, err := grpc.Dial(os.Getenv("TRANSACTIONS_SERVICE_TARGET"), grpc.WithInsecure(), grpc.WithBlock())
+	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+	conn, err := grpc.DialContext(ctx, os.Getenv("TRANSACTIONS_SERVICE_TARGET"), grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalln(err)
 	}

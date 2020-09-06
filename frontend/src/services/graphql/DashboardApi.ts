@@ -41,8 +41,6 @@ export default class DashboardApi extends BaseApi {
                     );
                 })
                 .catch((error: ApolloError) => {
-                    console.log('error');
-                    console.log(error);
                     reject(
                         new ApiResponse<boolean>({
                             errorTitle: this.extractMainError(error),
@@ -77,7 +75,6 @@ export default class DashboardApi extends BaseApi {
             this.client
                 .query({ query })
                 .then((data: any) => {
-                    console.log(data.data.analyzeRequests);
                     resolve(
                         new ApiResponse<AnalyzeRequest[]>({
                             data: data.data.analyzeRequests,
