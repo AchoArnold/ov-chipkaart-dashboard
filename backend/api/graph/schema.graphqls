@@ -45,10 +45,6 @@ type AnalzyeRequestDetails {
   analyzeRequestId: String!
 }
 
-input CancelTokenInput{
-  token: String!
-}
-
 input RefreshTokenInput{
   token: String!
 }
@@ -79,7 +75,7 @@ type Query {
 type Mutation {
   createUser(input: CreateUserInput!): AuthOutput!
   login(input: LoginInput!): AuthOutput!
-  cancelToken(input: CancelTokenInput!): Boolean!
+  cancelToken: Boolean!
   refreshToken(input: RefreshTokenInput!): String!
   storeAnalyzeRequest(input: StoreAnalyzeRequestInput!): Boolean!
 }

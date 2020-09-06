@@ -14,7 +14,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Logo from '../../components/Logo';
 import useTheme from '@material-ui/core/styles/useTheme';
 import { Box } from '@material-ui/core';
-import ROUTE_NAMES from '../../constants/routes';
+import ROUTE_NAMES, { ROUTE_LANDING_PAGE } from '../../constants/routes';
 import { Link } from 'react-router-dom';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import TextField from '@material-ui/core/TextField';
@@ -34,15 +34,16 @@ import Table from '@material-ui/core/Table';
 import TableCell from '@material-ui/core/TableCell';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
-import { DashboardAPI } from '../../serviceProvider';
+import { AuthApi, DashboardAPI } from '../../serviceProvider';
 import { sendToastNotification } from '../../services/notifications';
 import { useSnackbar } from 'notistack';
 import { VARIANT_ERROR, VARIANT_SUCCESS } from '../../constants/errors';
-import { ApiResponse } from '../../services/graphql/types';
+import { ApiResponse, CancelTokenResponse } from '../../services/graphql/types';
 import { AnalyzeRequest } from '../../services/graphql/generated';
 import { Check } from '@material-ui/icons';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { localeDate } from '../../services/formatters';
+import { useHistory } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -181,6 +182,7 @@ export default function Dashboard() {
     const { t } = useTranslation();
     const refFileInput = useRef(null);
     const { enqueueSnackbar } = useSnackbar();
+    const history = useHistory();
 
     const [state, setState] = useState({
         OvChipkaartUsername: '',
@@ -285,6 +287,20 @@ export default function Dashboard() {
         };
     };
 
+    const handleLogout = async () => {
+        await AuthApi.logout()
+            .then(() => {})
+            .catch((response: CancelTokenResponse) => {
+                sendToastNotification(
+                    enqueueSnackbar,
+                    response.getErrorTitle(),
+                    VARIANT_ERROR,
+                );
+            });
+
+        history.push(ROUTE_LANDING_PAGE);
+    };
+
     // @ts-ignore
     return (
         <div className={classes.root}>
@@ -303,7 +319,11 @@ export default function Dashboard() {
                         </Link>
                     </Box>
                     <Tooltip title="Logout">
-                        <IconButton color="inherit" aria-label="logout">
+                        <IconButton
+                            color="inherit"
+                            aria-label="logout"
+                            onClick={handleLogout}
+                        >
                             <LogoutIcon />
                         </IconButton>
                     </Tooltip>
