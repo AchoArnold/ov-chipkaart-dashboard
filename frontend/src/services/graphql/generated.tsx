@@ -57,10 +57,6 @@ export type AnalzyeRequestDetails = {
   analyzeRequestId: Scalars['String'];
 };
 
-export type CancelTokenInput = {
-  token: Scalars['String'];
-};
-
 export type RefreshTokenInput = {
   token: Scalars['String'];
 };
@@ -117,12 +113,6 @@ export type MutationCreateUserArgs = {
 /** The `Mutation` type, represents all updates we can make to our data. */
 export type MutationLoginArgs = {
   input: LoginInput;
-};
-
-
-/** The `Mutation` type, represents all updates we can make to our data. */
-export type MutationCancelTokenArgs = {
-  input: CancelTokenInput;
 };
 
 

@@ -44,6 +44,7 @@ import { Check } from '@material-ui/icons';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { localeDate } from '../../services/formatters';
 import { useHistory } from 'react-router-dom';
+import { KEY_TOKEN } from '../../constants/localStorage';
 
 const drawerWidth = 240;
 
@@ -253,7 +254,7 @@ export default function Dashboard() {
             .then((response: ApiResponse<AnalyzeRequest[]>) => {
                 setState({
                     ...state,
-                    requestRows: response.getData(),
+                    requestRows: response.getData() ?? [],
                 });
             })
             .catch((response: ApiResponse<AnalyzeRequest[]>) => {
@@ -297,6 +298,8 @@ export default function Dashboard() {
                     VARIANT_ERROR,
                 );
             });
+
+        localStorage.removeItem(KEY_TOKEN);
 
         history.push(ROUTE_LANDING_PAGE);
     };

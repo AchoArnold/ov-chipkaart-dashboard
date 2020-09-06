@@ -8,6 +8,9 @@ const (
 
 	// ContextKeyLanguageTag is the key for to get the language tag from the context
 	ContextKeyLanguageTag = internalContext.Key("language-tag")
+
+	// ContextKeyJWTToken is the auth token
+	ContextKeyJWTToken = internalContext.Key("jwt-token")
 )
 
 // Client provides the collection of middlewares.

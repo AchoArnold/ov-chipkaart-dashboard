@@ -25,10 +25,6 @@ type AuthOutput struct {
 	Token *Token `json:"token"`
 }
 
-type CancelTokenInput struct {
-	Token string `json:"token"`
-}
-
 type CreateUserInput struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`

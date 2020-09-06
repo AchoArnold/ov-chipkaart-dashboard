@@ -30,10 +30,10 @@ func FromString(idString string) (id ID, err error) {
 
 // FromInterface parses the uuid from an interface type
 func FromInterface(idInterface interface{}) (id ID, err error) {
-	uID, ok := idInterface.(ID)
+	id, ok := idInterface.(ID)
 	if !ok {
 		return id, errors.New("invalid id")
 	}
 
-	return ID(uID), err
+	return id, err
 }

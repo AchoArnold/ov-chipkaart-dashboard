@@ -3,6 +3,8 @@ package resolver
 import (
 	"context"
 
+	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/errors"
+
 	"github.com/palantir/stacktrace"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
@@ -78,6 +80,15 @@ func (r *Resolver) languageTagFromContext(ctx context.Context) language.Tag {
 	}
 
 	return *tag
+}
+
+func (r *Resolver) tokenFromContext(ctx context.Context) (string, error) {
+	jwtToken, ok := ctx.Value(middlewares.ContextKeyJWTToken).(string)
+	if !ok {
+		return jwtToken, stacktrace.NewErrorWithCode(internalErrors.ErrCodeMissingJWT, "The JWT is not available")
+	}
+
+	return jwtToken, nil
 }
 
 func (r *Resolver) userIDFromContext(ctx context.Context) (userID id.ID, err error) {

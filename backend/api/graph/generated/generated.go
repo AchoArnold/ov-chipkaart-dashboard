@@ -63,7 +63,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CancelToken         func(childComplexity int, input model.CancelTokenInput) int
+		CancelToken         func(childComplexity int) int
 		CreateUser          func(childComplexity int, input model.CreateUserInput) int
 		Login               func(childComplexity int, input model.LoginInput) int
 		RefreshToken        func(childComplexity int, input model.RefreshTokenInput) int
@@ -92,7 +92,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input model.CreateUserInput) (*model.AuthOutput, error)
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthOutput, error)
-	CancelToken(ctx context.Context, input model.CancelTokenInput) (bool, error)
+	CancelToken(ctx context.Context) (bool, error)
 	RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error)
 	StoreAnalyzeRequest(ctx context.Context, input model.StoreAnalyzeRequestInput) (bool, error)
 }
@@ -191,12 +191,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_cancelToken_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CancelToken(childComplexity, args["input"].(model.CancelTokenInput)), true
+		return e.complexity.Mutation.CancelToken(childComplexity), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -425,10 +420,6 @@ type AnalzyeRequestDetails {
   analyzeRequestId: String!
 }
 
-input CancelTokenInput{
-  token: String!
-}
-
 input RefreshTokenInput{
   token: String!
 }
@@ -459,7 +450,7 @@ type Query {
 type Mutation {
   createUser(input: CreateUserInput!): AuthOutput!
   login(input: LoginInput!): AuthOutput!
-  cancelToken(input: CancelTokenInput!): Boolean!
+  cancelToken: Boolean!
   refreshToken(input: RefreshTokenInput!): String!
   storeAnalyzeRequest(input: StoreAnalyzeRequestInput!): Boolean!
 }`, BuiltIn: false},
@@ -469,20 +460,6 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
-
-func (ec *executionContext) field_Mutation_cancelToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 model.CancelTokenInput
-	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNCancelTokenInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐCancelTokenInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
 
 func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1065,16 +1042,9 @@ func (ec *executionContext) _Mutation_cancelToken(ctx context.Context, field gra
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_cancelToken_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CancelToken(rctx, args["input"].(model.CancelTokenInput))
+		return ec.resolvers.Mutation().CancelToken(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2610,24 +2580,6 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCancelTokenInput(ctx context.Context, obj interface{}) (model.CancelTokenInput, error) {
-	var it model.CancelTokenInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "token":
-			var err error
-			it.Token, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, obj interface{}) (model.CreateUserInput, error) {
 	var it model.CreateUserInput
 	var asMap = obj.(map[string]interface{})
@@ -3406,10 +3358,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNCancelTokenInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐCancelTokenInput(ctx context.Context, v interface{}) (model.CancelTokenInput, error) {
-	return ec.unmarshalInputCancelTokenInput(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNCreateUserInput2githubᚗcomᚋAchoArnoldᚋovᚑchipkaartᚑdashboardᚋbackendᚋapiᚋgraphᚋmodelᚐCreateUserInput(ctx context.Context, v interface{}) (model.CreateUserInput, error) {

@@ -148,10 +148,10 @@ export default function LandingPage() {
                     return;
                 }
 
-                if (response.isValid()) {
+                if (response.isValid() && response.getData()?.token.value) {
                     localStorage.setItem(
                         KEY_TOKEN,
-                        response.getData().token.value,
+                        response.getData()?.token.value ?? '',
                     );
 
                     sendToastNotification(

@@ -41,7 +41,7 @@ export class ApiResponse<T> {
         this.data = options.data;
     }
 
-    getData(): any {
+    getData(): T | undefined {
         return this.data;
     }
 

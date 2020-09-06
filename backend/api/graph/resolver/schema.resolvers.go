@@ -19,8 +19,8 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 	return r.login(ctx, input)
 }
 
-func (r *mutationResolver) CancelToken(ctx context.Context, input model.CancelTokenInput) (bool, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) CancelToken(ctx context.Context) (bool, error) {
+	return r.cancelToken(ctx)
 }
 
 func (r *mutationResolver) RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error) {

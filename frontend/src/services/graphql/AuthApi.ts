@@ -23,7 +23,7 @@ export default class AuthApi extends BaseApi {
                         new CancelTokenResponse({
                             errorTitle: this.extractMainError(error),
                             validationErrors: this.mapErrorToMessageBag(error),
-                            data: undefined,
+                            data: false,
                         }),
                     );
                 });
