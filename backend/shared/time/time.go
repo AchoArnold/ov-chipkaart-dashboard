@@ -11,6 +11,9 @@ const (
 
 	// StringFormat is the format when time is converted to string
 	StringFormat = "2006-01-02 15:04:05.999999999 -0700 MST"
+
+	// YearFormat represents a year format
+	YearFormat = "2016"
 )
 
 // FromDate returns a time from a date string
