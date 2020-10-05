@@ -2,11 +2,12 @@ package mongodb
 
 import (
 	"context"
+	"github.com/palantir/stacktrace"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/entities"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
-	"github.com/pkg/errors"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -42,10 +43,10 @@ func (repository *UserRepository) FindByID(ID id.ID) (user *entities.User, err e
 	err = repository.Collection().FindOne(repository.DefaultTimeoutContext(), bson.M{"id": ID.String()}).Decode(&dbRecord)
 
 	if err == mongo.ErrNoDocuments {
-		return user, database.ErrEntityNotFound
+		return user, errors.ErrEntityNotFound
 	}
 	if err != nil {
-		return user, errors.Wrap(err, "error fetching single user from the database by id")
+		return user, stacktrace.Propagate(err, "error fetching single user from the database by id")
 	}
 
 	return repository.hydrateUserFromDBRecord(dbRecord)
@@ -57,10 +58,10 @@ func (repository *UserRepository) FindByEmail(email string) (user *entities.User
 	err = repository.Collection().FindOne(repository.DefaultTimeoutContext(), bson.M{"email": email}).Decode(&dbRecord)
 
 	if err == mongo.ErrNoDocuments {
-		return user, database.ErrEntityNotFound
+		return user, errors.ErrEntityNotFound
 	}
 	if err != nil {
-		return user, errors.Wrap(err, "error fetching single user from the database by email")
+		return user, stacktrace.Propagate(err, "error fetching single user from the database by email")
 	}
 
 	return repository.hydrateUserFromDBRecord(dbRecord)
@@ -69,7 +70,7 @@ func (repository *UserRepository) FindByEmail(email string) (user *entities.User
 func (repository *UserRepository) hydrateUserFromDBRecord(dbRecord map[string]interface{}) (user *entities.User, err error) {
 	userID, err := id.FromString(dbRecord["id"].(string))
 	if err != nil {
-		return user, errors.Wrap(err, "could not decode user id form string")
+		return user, stacktrace.Propagate(err, "could not decode user id form string")
 	}
 
 	return &entities.User{

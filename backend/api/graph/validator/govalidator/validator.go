@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	time2 "time"
+	internalTime "time"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ovchipkaart"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/time"
-
+	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/errors"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator"
@@ -107,7 +107,7 @@ func (service GoValidator) ValidateStoreAnalzyeRequest(input model.StoreAnalyzeR
 	}
 
 	// hours in 6 months
-	sixMonthsInHours := 25 * 7 * 24 * time2.Hour
+	sixMonthsInHours := 25 * 7 * 24 * internalTime.Hour
 	if endDate.Sub(startDate) > sixMonthsInHours {
 		values.Add("startDate", "The start date must be maximum 6 months before the end date")
 		values.Add("endDate", "The end date must be maximum 6 months after the start date")
@@ -176,7 +176,7 @@ func (service GoValidator) ruleUserEmailExists() func(field string, rule string,
 		email := value.(string)
 
 		_, err := service.db.UserRepository().FindByEmail(email)
-		if err == database.ErrEntityNotFound {
+		if err == internalErrors.ErrEntityNotFound {
 			return nil
 		}
 

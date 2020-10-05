@@ -71,7 +71,7 @@ func (repository *AnalyzeRequestRepository) FindByID(ID id.ID) (analyzeRequest e
 	err = repository.Collection().FindOne(repository.DefaultTimeoutContext(), bson.M{"id": ID.String()}).Decode(&dbRecord)
 
 	if err == mongo.ErrNoDocuments {
-		return analyzeRequest, database.ErrEntityNotFound
+		return analyzeRequest, errors.ErrEntityNotFound
 	}
 	if err != nil {
 		return analyzeRequest, stacktrace.Propagate(err, "error fetching single analzye request from the database by id")
