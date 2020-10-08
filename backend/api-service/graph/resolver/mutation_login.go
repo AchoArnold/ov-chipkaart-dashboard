@@ -3,10 +3,10 @@ package resolver
 import (
 	"context"
 
-	apiErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/errors"
+	apiErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/errors"
 	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/errors"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/model"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/validator"
 	internalTime "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/time"
 	pkgErrors "github.com/pkg/errors"
 )

@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/database"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

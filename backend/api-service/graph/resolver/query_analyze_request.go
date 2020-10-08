@@ -3,8 +3,8 @@ package resolver
 import (
 	"context"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/errors"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/errors"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/model"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/time"
 	"github.com/palantir/stacktrace"
 )

@@ -1,5 +1,5 @@
 overwrite: true
-schema: "../backend/api/graph/schema.graphqls"
+schema: "../backend/api-service/graph/schema.graphqls"
 documents: "./src/services/graphql/types.tsx"
 generates:
   /Users/najela/Work/NdoleStudio/Github/ov-chipkaart-dashboard/frontend/src/services/graphql/generated.tsx:

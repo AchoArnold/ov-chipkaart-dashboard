@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/entities"
-	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/errors"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/entities"
+	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/errors"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/model"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
 	internalTime "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/time"
 	pkgErrors "github.com/pkg/errors"

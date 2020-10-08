@@ -10,9 +10,9 @@ import (
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/time"
 	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/errors"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/database"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/model"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/validator"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/errorhandler"
 	"github.com/palantir/stacktrace"
 	"github.com/pkg/errors"

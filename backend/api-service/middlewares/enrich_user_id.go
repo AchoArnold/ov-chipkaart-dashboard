@@ -7,7 +7,7 @@ import (
 
 	"github.com/vektah/gqlparser/v2/gqlerror"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/services/jwt"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/services/jwt"
 )
 
 // EnrichUserID adds the user id to the context

@@ -3,7 +3,7 @@ package resolver
 import (
 	"context"
 
-	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/errors"
+	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/errors"
 )
 
 func (r *mutationResolver) cancelToken(ctx context.Context) (bool, error) {

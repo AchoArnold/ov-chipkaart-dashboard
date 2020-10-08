@@ -3,20 +3,20 @@ package resolver
 import (
 	"context"
 
-	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/errors"
+	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/errors"
 
 	"github.com/palantir/stacktrace"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions-service"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/middlewares"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/services/jwt"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/services/password"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/database"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/validator"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/middlewares"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/services/jwt"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/services/password"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/errorhandler"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/logger"
 	"github.com/pkg/errors"
@@ -47,7 +47,7 @@ type Resolver struct {
 	errorHandler              errorhandler.ErrorHandler
 	logger                    logger.Logger
 	jwtService                jwt.Service
-	transactionsServiceClient transactions.TransactionsServiceClient
+	transactionsServiceClient transactions_service.TransactionsServiceClient
 }
 
 // NewResolver creates a new instance of the resolver
@@ -58,7 +58,7 @@ func NewResolver(
 	errorHandler errorhandler.ErrorHandler,
 	logger logger.Logger,
 	jwtService jwt.Service,
-	transactionsServiceClient transactions.TransactionsServiceClient,
+	transactionsServiceClient transactions_service.TransactionsServiceClient,
 ) *Resolver {
 
 	return &Resolver{

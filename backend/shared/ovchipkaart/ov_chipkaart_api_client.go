@@ -17,7 +17,7 @@ import (
 )
 
 const endpointAuthentication = "https://login.ov-chipkaart.nl/oauth2/token"
-const endpointAuthorisation = "https://api2.ov-chipkaart.nl/femobilegateway/v1/api/authorize"
+const endpointAuthorisation = "https://api2.ov-chipkaart.nl/femobilegateway/v1/api-service/authorize"
 const endpointTransactions = "https://api2.ov-chipkaart.nl/femobilegateway/v1/transactions"
 
 const contentTypeJSON = "application/json"

@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/palantir/stacktrace"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/entities"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/database"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/entities"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/errors"
 	"go.mongodb.org/mongo-driver/bson"

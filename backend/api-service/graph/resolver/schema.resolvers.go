@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/generated"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/generated"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/model"
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.AuthOutput, error) {

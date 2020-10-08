@@ -8,11 +8,11 @@ import (
 
 	internalContext "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/context"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/entities"
-	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/errors"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/entities"
+	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/errors"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/model"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions-service"
 	internalTime "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/time"
 	"github.com/golang/protobuf/ptypes"
 	pkgErrors "github.com/pkg/errors"
@@ -66,11 +66,11 @@ func (r *mutationResolver) storeAnalyzeRequest(ctx context.Context, input model.
 		return false, internalErrors.ErrInternalServerError
 	}
 
-	var recordsResponse *transactions.RawRecordsResponse
+	var recordsResponse *transactions_service.RawRecordsResponse
 	var source entities.RawRecordSource
 	if analyzeRequest.InputType == entities.AnalyzeRequestInputTypeCredentials {
 		source = entities.RawRecordSourceAPI
-		recordsResponse, err = r.transactionsServiceClient.RawRecordsWithCredentials(grpcCtx, &transactions.CredentialsRawRecordsRequest{
+		recordsResponse, err = r.transactionsServiceClient.RawRecordsWithCredentials(grpcCtx, &transactions_service.CredentialsRawRecordsRequest{
 			Username:   *input.OvChipkaartUsername,
 			Password:   *input.OvChipkaartPassword,
 			CardNumber: input.OvChipkaartNumber,
@@ -85,7 +85,7 @@ func (r *mutationResolver) storeAnalyzeRequest(ctx context.Context, input model.
 			return false, err
 		}
 
-		recordsResponse, err = r.transactionsServiceClient.RawRecordsFromBytes(grpcCtx, &transactions.BytesRawRecordsRequest{
+		recordsResponse, err = r.transactionsServiceClient.RawRecordsFromBytes(grpcCtx, &transactions_service.BytesRawRecordsRequest{
 			CardNumber: analyzeRequest.OvChipkaartNumber,
 			StartDate:  protoStartDate,
 			EndDate:    protoEndDate,

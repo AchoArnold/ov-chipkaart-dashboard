@@ -3,7 +3,7 @@ package validator
 import (
 	"net/url"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/model"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/model"
 	"github.com/pkg/errors"
 	"golang.org/x/text/language"
 )

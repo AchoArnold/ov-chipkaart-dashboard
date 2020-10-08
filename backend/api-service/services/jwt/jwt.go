@@ -8,7 +8,7 @@ import (
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/id"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/cache"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/cache"
 	"github.com/pkg/errors"
 
 	"github.com/dgrijalva/jwt-go"
