@@ -5,7 +5,7 @@ import "google/protobuf/wrappers.proto";
 
 package transactions;
 
-option go_package = "transactions";
+option go_package = ".;transactions_service";
 
 message CredentialsRawRecordsRequest {
   string username = 1;

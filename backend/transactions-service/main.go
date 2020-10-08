@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ovchipkaart"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions-service"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/joho/godotenv"
@@ -22,7 +22,7 @@ import (
 )
 
 type server struct {
-	transactions.UnimplementedTransactionsServiceServer
+	transactions_service.UnimplementedTransactionsServiceServer
 	ovChipkaartAPIClient   ovchipkaart.APIClient
 	csvTransactionsService *TransactionFetcherCSVService
 }
@@ -51,13 +51,13 @@ func main() {
 
 	srv := grpc.NewServer()
 
-	transactions.RegisterTransactionsServiceServer(srv, &server{ovChipkaartAPIClient: ovChipkaartAPIClient, csvTransactionsService: csvTransactionsService})
+	transactions_service.RegisterTransactionsServiceServer(srv, &server{ovChipkaartAPIClient: ovChipkaartAPIClient, csvTransactionsService: csvTransactionsService})
 
 	log.Fatalln(srv.Serve(listener))
 }
 
 // RawRecordsFromBytes gets the raw records form a CSV file as bytes
-func (s *server) RawRecordsFromBytes(_ context.Context, request *transactions.BytesRawRecordsRequest) (*transactions.RawRecordsResponse, error) {
+func (s *server) RawRecordsFromBytes(_ context.Context, request *transactions_service.BytesRawRecordsRequest) (*transactions_service.RawRecordsResponse, error) {
 	csvFile := bytes.NewBuffer(request.GetData())
 
 	records, err := s.csvTransactionsService.FetchTransactionRecords(CSVTransactionFetchOptions{
@@ -75,7 +75,7 @@ func (s *server) RawRecordsFromBytes(_ context.Context, request *transactions.By
 }
 
 // RawRecordsWithCredentials gets raw records from the ov-chipkaart API
-func (s *server) RawRecordsWithCredentials(_ context.Context, request *transactions.CredentialsRawRecordsRequest) (*transactions.RawRecordsResponse, error) {
+func (s *server) RawRecordsWithCredentials(_ context.Context, request *transactions_service.CredentialsRawRecordsRequest) (*transactions_service.RawRecordsResponse, error) {
 	records, err := s.ovChipkaartAPIClient.FetchTransactions(ovchipkaart.TransactionFetchOptions{
 		Username:   request.GetUsername(),
 		Password:   request.GetPassword(),
@@ -91,8 +91,8 @@ func (s *server) RawRecordsWithCredentials(_ context.Context, request *transacti
 	return s.makeResponse(records)
 }
 
-func (s server) makeResponse(records []ovchipkaart.RawRecord) (*transactions.RawRecordsResponse, error) {
-	rawRecords := make([]*transactions.RawRecord, len(records))
+func (s server) makeResponse(records []ovchipkaart.RawRecord) (*transactions_service.RawRecordsResponse, error) {
+	rawRecords := make([]*transactions_service.RawRecord, len(records))
 	for index, record := range records {
 		tDateTime, err := ptypes.TimestampProto(record.TransactionDateTime.ToTime())
 		if err != nil {
@@ -109,7 +109,7 @@ func (s server) makeResponse(records []ovchipkaart.RawRecord) (*transactions.Raw
 			ePurseMut = wrapperspb.Double(*record.EPurseMut)
 		}
 
-		rawRecords[index] = &transactions.RawRecord{
+		rawRecords[index] = &transactions_service.RawRecord{
 			CheckInInfo:            record.CheckInInfo,
 			CheckInText:            record.CheckInText,
 			Fare:                   fare,
@@ -129,5 +129,5 @@ func (s server) makeResponse(records []ovchipkaart.RawRecord) (*transactions.Raw
 		}
 	}
 
-	return &transactions.RawRecordsResponse{RawRecords: rawRecords}, nil
+	return &transactions_service.RawRecordsResponse{RawRecords: rawRecords}, nil
 }

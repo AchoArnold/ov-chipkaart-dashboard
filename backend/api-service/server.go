@@ -12,30 +12,30 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/rs/cors"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions-service"
 	"google.golang.org/grpc"
 
 	ov_chipkaart "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ovchipkaart"
 
 	"os"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/middlewares"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/middlewares"
 
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/validator/govalidator"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/services/password"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/validator"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/validator/govalidator"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/services/password"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/errorhandler"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/logger"
 	"github.com/getsentry/sentry-go"
 
 	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/cache"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/cache/redis"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/database/mongodb"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/generated"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/graph/resolver"
-	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api/services/jwt"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/cache"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/cache/redis"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/database"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/database/mongodb"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/generated"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/graph/resolver"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/services/jwt"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
@@ -171,12 +171,12 @@ func initializeErrorHandler() errorhandler.ErrorHandler {
 	return errHandler
 }
 
-func initializeTransactionsServiceClient() transactions.TransactionsServiceClient {
+func initializeTransactionsServiceClient() transactions_service.TransactionsServiceClient {
 	ctx, _ := context.WithTimeout(context.Background(), time.Second)
 	conn, err := grpc.DialContext(ctx, os.Getenv("TRANSACTIONS_SERVICE_TARGET"), grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	return transactions.NewTransactionsServiceClient(conn)
+	return transactions_service.NewTransactionsServiceClient(conn)
 }
