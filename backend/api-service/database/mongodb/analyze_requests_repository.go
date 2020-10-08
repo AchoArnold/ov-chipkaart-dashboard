@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/mongodb"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/database"
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/entities"
@@ -16,12 +17,12 @@ import (
 
 // AnalyzeRequestRepository creates a new instance of the user repository
 type AnalyzeRequestRepository struct {
-	repository
+	mongodb.Repository
 }
 
 // NewAnalyzeRequestRepository creates a new instance of the user repository
 func NewAnalyzeRequestRepository(db *mongo.Database, collection string) database.AnalyzeRequestRepository {
-	return &AnalyzeRequestRepository{repository{db, collection}}
+	return &AnalyzeRequestRepository{mongodb.NewRepository(db, collection)}
 }
 
 // Store stores a user on the mongodb repository

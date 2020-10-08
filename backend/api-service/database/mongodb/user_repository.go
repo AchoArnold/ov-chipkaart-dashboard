@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/mongodb"
 	"github.com/palantir/stacktrace"
 
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/database"
@@ -15,12 +16,12 @@ import (
 
 // UserRepository creates a new instance of the user repository
 type UserRepository struct {
-	repository
+	mongodb.Repository
 }
 
 // NewUserRepository creates a new instance of the user repository
 func NewUserRepository(db *mongo.Database, collection string) database.UserRepository {
-	return &UserRepository{repository{db, collection}}
+	return &UserRepository{mongodb.NewRepository(db, collection)}
 }
 
 // Store stores a user on the mongodb repository

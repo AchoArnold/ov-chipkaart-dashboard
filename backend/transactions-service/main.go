@@ -57,7 +57,7 @@ func main() {
 }
 
 // RawRecordsFromBytes gets the raw records form a CSV file as bytes
-func (s *server) RawRecordsFromBytes(_ context.Context, request *transactions_service.BytesRawRecordsRequest) (*transactions_service.RawRecordsResponse, error) {
+func (s *server) FetchFromBytes(_ context.Context, request *transactions_service.FetchFromBytesRequest) (*transactions_service.TransactionsResponse, error) {
 	csvFile := bytes.NewBuffer(request.GetData())
 
 	records, err := s.csvTransactionsService.FetchTransactionRecords(CSVTransactionFetchOptions{
@@ -75,7 +75,7 @@ func (s *server) RawRecordsFromBytes(_ context.Context, request *transactions_se
 }
 
 // RawRecordsWithCredentials gets raw records from the ov-chipkaart API
-func (s *server) RawRecordsWithCredentials(_ context.Context, request *transactions_service.CredentialsRawRecordsRequest) (*transactions_service.RawRecordsResponse, error) {
+func (s *server) FetchByCredentials(_ context.Context, request *transactions_service.FetchByCredentialsRequest) (*transactions_service.TransactionsResponse, error) {
 	records, err := s.ovChipkaartAPIClient.FetchTransactions(ovchipkaart.TransactionFetchOptions{
 		Username:   request.GetUsername(),
 		Password:   request.GetPassword(),
@@ -91,8 +91,8 @@ func (s *server) RawRecordsWithCredentials(_ context.Context, request *transacti
 	return s.makeResponse(records)
 }
 
-func (s server) makeResponse(records []ovchipkaart.RawRecord) (*transactions_service.RawRecordsResponse, error) {
-	rawRecords := make([]*transactions_service.RawRecord, len(records))
+func (s server) makeResponse(records []ovchipkaart.RawRecord) (*transactions_service.TransactionsResponse, error) {
+	transactions := make([]*transactions_service.Transaction, len(records))
 	for index, record := range records {
 		tDateTime, err := ptypes.TimestampProto(record.TransactionDateTime.ToTime())
 		if err != nil {
@@ -109,7 +109,7 @@ func (s server) makeResponse(records []ovchipkaart.RawRecord) (*transactions_ser
 			ePurseMut = wrapperspb.Double(*record.EPurseMut)
 		}
 
-		rawRecords[index] = &transactions_service.RawRecord{
+		transactions[index] = &transactions_service.Transaction{
 			CheckInInfo:            record.CheckInInfo,
 			CheckInText:            record.CheckInText,
 			Fare:                   fare,
@@ -129,5 +129,5 @@ func (s server) makeResponse(records []ovchipkaart.RawRecord) (*transactions_ser
 		}
 	}
 
-	return &transactions_service.RawRecordsResponse{RawRecords: rawRecords}, nil
+	return &transactions_service.TransactionsResponse{Transactions: transactions}, nil
 }

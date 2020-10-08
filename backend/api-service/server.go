@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	rawRecordsService "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/raw-records-service"
 	"log"
 	"net/http"
 	"strconv"
@@ -15,7 +16,7 @@ import (
 	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/transactions-service"
 	"google.golang.org/grpc"
 
-	ov_chipkaart "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ovchipkaart"
+	"github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/ovchipkaart"
 
 	"os"
 
@@ -44,6 +45,14 @@ import (
 )
 
 const defaultPort = "8080"
+
+type Singletons struct {
+	errorHandler errorhandler.ErrorHandler
+}
+
+var (
+	singletons = Singletons{}
+)
 
 func main() {
 	err := godotenv.Load()
@@ -91,11 +100,12 @@ func initializeResolver() *resolver.Resolver {
 		initializeLogger(),
 		initializeJWTService(),
 		initializeTransactionsServiceClient(),
+		initializeRawRecordsServiceClient(),
 	)
 }
 
-func initializeOvChipkaartAPIClient() ov_chipkaart.APIClient {
-	return ov_chipkaart.NewAPIService(ov_chipkaart.APIServiceConfig{
+func initializeOvChipkaartAPIClient() ovchipkaart.APIClient {
+	return ovchipkaart.NewAPIService(ovchipkaart.APIServiceConfig{
 		ClientID:     os.Getenv("OV_CHIPKAART_API_CLIENT_ID"),
 		ClientSecret: os.Getenv("OV_CHIPKAART_API_CLIENT_SECRET"),
 		Locale:       "en",
@@ -156,7 +166,11 @@ func initializeLogger() logger.Logger {
 }
 
 func initializeErrorHandler() errorhandler.ErrorHandler {
-	errHandler, err := errorhandler.NewSentryErrorHandler(sentry.ClientOptions{
+	if singletons.errorHandler != nil {
+		return singletons.errorHandler
+	}
+
+	errorHandlerSingleton, err := errorhandler.NewSentryErrorHandler(sentry.ClientOptions{
 		// Either set your DSN here or set the SENTRY_DSN environment variable.
 		Dsn: os.Getenv("SENTRY_DSN"),
 		// Enable printing of SDK debug messages.
@@ -168,7 +182,8 @@ func initializeErrorHandler() errorhandler.ErrorHandler {
 		log.Fatal(err.Error())
 	}
 
-	return errHandler
+	singletons.errorHandler = errorHandlerSingleton
+	return singletons.errorHandler
 }
 
 func initializeTransactionsServiceClient() transactions_service.TransactionsServiceClient {
@@ -179,4 +194,14 @@ func initializeTransactionsServiceClient() transactions_service.TransactionsServ
 	}
 
 	return transactions_service.NewTransactionsServiceClient(conn)
+}
+
+func initializeRawRecordsServiceClient() rawRecordsService.RawRecordsServiceClient {
+	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+	conn, err := grpc.DialContext(ctx, os.Getenv("RAW_RECORDS_SERVICE_TARGET"), grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return rawRecordsService.NewRawRecordsServiceClient(conn)
 }

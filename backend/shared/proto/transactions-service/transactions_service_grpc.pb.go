@@ -17,8 +17,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransactionsServiceClient interface {
-	RawRecordsWithCredentials(ctx context.Context, in *CredentialsRawRecordsRequest, opts ...grpc.CallOption) (*RawRecordsResponse, error)
-	RawRecordsFromBytes(ctx context.Context, in *BytesRawRecordsRequest, opts ...grpc.CallOption) (*RawRecordsResponse, error)
+	FetchByCredentials(ctx context.Context, in *FetchByCredentialsRequest, opts ...grpc.CallOption) (*TransactionsResponse, error)
+	FetchFromBytes(ctx context.Context, in *FetchFromBytesRequest, opts ...grpc.CallOption) (*TransactionsResponse, error)
 }
 
 type transactionsServiceClient struct {
@@ -29,18 +29,18 @@ func NewTransactionsServiceClient(cc grpc.ClientConnInterface) TransactionsServi
 	return &transactionsServiceClient{cc}
 }
 
-func (c *transactionsServiceClient) RawRecordsWithCredentials(ctx context.Context, in *CredentialsRawRecordsRequest, opts ...grpc.CallOption) (*RawRecordsResponse, error) {
-	out := new(RawRecordsResponse)
-	err := c.cc.Invoke(ctx, "/transactions.TransactionsService/RawRecordsWithCredentials", in, out, opts...)
+func (c *transactionsServiceClient) FetchByCredentials(ctx context.Context, in *FetchByCredentialsRequest, opts ...grpc.CallOption) (*TransactionsResponse, error) {
+	out := new(TransactionsResponse)
+	err := c.cc.Invoke(ctx, "/transactions.TransactionsService/FetchByCredentials", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *transactionsServiceClient) RawRecordsFromBytes(ctx context.Context, in *BytesRawRecordsRequest, opts ...grpc.CallOption) (*RawRecordsResponse, error) {
-	out := new(RawRecordsResponse)
-	err := c.cc.Invoke(ctx, "/transactions.TransactionsService/RawRecordsFromBytes", in, out, opts...)
+func (c *transactionsServiceClient) FetchFromBytes(ctx context.Context, in *FetchFromBytesRequest, opts ...grpc.CallOption) (*TransactionsResponse, error) {
+	out := new(TransactionsResponse)
+	err := c.cc.Invoke(ctx, "/transactions.TransactionsService/FetchFromBytes", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,8 +51,8 @@ func (c *transactionsServiceClient) RawRecordsFromBytes(ctx context.Context, in 
 // All implementations must embed UnimplementedTransactionsServiceServer
 // for forward compatibility
 type TransactionsServiceServer interface {
-	RawRecordsWithCredentials(context.Context, *CredentialsRawRecordsRequest) (*RawRecordsResponse, error)
-	RawRecordsFromBytes(context.Context, *BytesRawRecordsRequest) (*RawRecordsResponse, error)
+	FetchByCredentials(context.Context, *FetchByCredentialsRequest) (*TransactionsResponse, error)
+	FetchFromBytes(context.Context, *FetchFromBytesRequest) (*TransactionsResponse, error)
 	mustEmbedUnimplementedTransactionsServiceServer()
 }
 
@@ -60,11 +60,11 @@ type TransactionsServiceServer interface {
 type UnimplementedTransactionsServiceServer struct {
 }
 
-func (UnimplementedTransactionsServiceServer) RawRecordsWithCredentials(context.Context, *CredentialsRawRecordsRequest) (*RawRecordsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RawRecordsWithCredentials not implemented")
+func (UnimplementedTransactionsServiceServer) FetchByCredentials(context.Context, *FetchByCredentialsRequest) (*TransactionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FetchByCredentials not implemented")
 }
-func (UnimplementedTransactionsServiceServer) RawRecordsFromBytes(context.Context, *BytesRawRecordsRequest) (*RawRecordsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RawRecordsFromBytes not implemented")
+func (UnimplementedTransactionsServiceServer) FetchFromBytes(context.Context, *FetchFromBytesRequest) (*TransactionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FetchFromBytes not implemented")
 }
 func (UnimplementedTransactionsServiceServer) mustEmbedUnimplementedTransactionsServiceServer() {}
 
@@ -79,38 +79,38 @@ func RegisterTransactionsServiceServer(s *grpc.Server, srv TransactionsServiceSe
 	s.RegisterService(&_TransactionsService_serviceDesc, srv)
 }
 
-func _TransactionsService_RawRecordsWithCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CredentialsRawRecordsRequest)
+func _TransactionsService_FetchByCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FetchByCredentialsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TransactionsServiceServer).RawRecordsWithCredentials(ctx, in)
+		return srv.(TransactionsServiceServer).FetchByCredentials(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/transactions.TransactionsService/RawRecordsWithCredentials",
+		FullMethod: "/transactions.TransactionsService/FetchByCredentials",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransactionsServiceServer).RawRecordsWithCredentials(ctx, req.(*CredentialsRawRecordsRequest))
+		return srv.(TransactionsServiceServer).FetchByCredentials(ctx, req.(*FetchByCredentialsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TransactionsService_RawRecordsFromBytes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BytesRawRecordsRequest)
+func _TransactionsService_FetchFromBytes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FetchFromBytesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TransactionsServiceServer).RawRecordsFromBytes(ctx, in)
+		return srv.(TransactionsServiceServer).FetchFromBytes(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/transactions.TransactionsService/RawRecordsFromBytes",
+		FullMethod: "/transactions.TransactionsService/FetchFromBytes",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransactionsServiceServer).RawRecordsFromBytes(ctx, req.(*BytesRawRecordsRequest))
+		return srv.(TransactionsServiceServer).FetchFromBytes(ctx, req.(*FetchFromBytesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -120,12 +120,12 @@ var _TransactionsService_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*TransactionsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "RawRecordsWithCredentials",
-			Handler:    _TransactionsService_RawRecordsWithCredentials_Handler,
+			MethodName: "FetchByCredentials",
+			Handler:    _TransactionsService_FetchByCredentials_Handler,
 		},
 		{
-			MethodName: "RawRecordsFromBytes",
-			Handler:    _TransactionsService_RawRecordsFromBytes_Handler,
+			MethodName: "FetchFromBytes",
+			Handler:    _TransactionsService_FetchFromBytes_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

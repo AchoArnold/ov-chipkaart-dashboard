@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "transactions-service/transactions_service.proto";
+import "google/protobuf/empty.proto";
+
+package transactions;
+
+option go_package = "raw-records-service;raw_records_service";
+
+message RawRecord {
+  string checkInInfo = 1;
+  string checkInText = 2;
+  google.protobuf.DoubleValue fare = 3;
+  string fareCalculation = 4;
+  string fareText = 5;
+  string modalType = 6;
+  string productInfo = 7;
+  string productText = 8;
+  string pto= 9;
+  google.protobuf.Timestamp transactionDateTime = 10;
+  string transactionInfo = 11;
+  string transactionName = 12;
+  google.protobuf.DoubleValue ePurseMut = 13;
+  string ePurseMutInfo = 14;
+  string transactionExplanation = 15;
+  string transactionPriority = 16;
+  google.protobuf.Timestamp createdAt = 17;
+  google.protobuf.Timestamp updatedAt = 18;
+  string source = 19;
+}
+
+message StoreTransactionsRequest {
+  repeated Transaction transactions = 1;
+  string source = 2;
+  string analyzeRequestId = 3;
+}
+
+message FetchByRequestIdRequest {
+  string requestID = 1;
+}
+
+message FetchByRequestIdResponse {
+  repeated RawRecord rawRecords = 1;
+}
+
+service RawRecordsService {
+  rpc FetchByRequestId(FetchByRequestIdRequest) returns (FetchByRequestIdResponse) {}
+  rpc StoreTransactions(StoreTransactionsRequest) returns (google.protobuf.Empty){}
+}

@@ -5,9 +5,9 @@ import "google/protobuf/wrappers.proto";
 
 package transactions;
 
-option go_package = ".;transactions_service";
+option go_package = "transactions-service;transactions_service";
 
-message CredentialsRawRecordsRequest {
+message FetchByCredentialsRequest {
   string username = 1;
   string password = 2;
   string cardNumber = 3;
@@ -15,14 +15,14 @@ message CredentialsRawRecordsRequest {
   google.protobuf.Timestamp endDate = 5;
 }
 
-message BytesRawRecordsRequest {
+message FetchFromBytesRequest {
   string cardNumber = 1;
   bytes data = 2;
   google.protobuf.Timestamp startDate = 3;
   google.protobuf.Timestamp endDate = 4;
 }
 
-message RawRecord {
+message Transaction {
     string checkInInfo = 1;
     string checkInText = 2;
     google.protobuf.DoubleValue fare = 3;
@@ -42,11 +42,11 @@ message RawRecord {
 
 }
 
-message RawRecordsResponse {
-  repeated RawRecord rawRecords = 1;
+message TransactionsResponse {
+  repeated Transaction transactions = 1;
 }
 
 service TransactionsService {
-  rpc RawRecordsWithCredentials(CredentialsRawRecordsRequest) returns (RawRecordsResponse) {}
-  rpc RawRecordsFromBytes(BytesRawRecordsRequest) returns (RawRecordsResponse) {}
+  rpc FetchByCredentials(FetchByCredentialsRequest) returns (TransactionsResponse) {}
+  rpc FetchFromBytes(FetchFromBytesRequest) returns (TransactionsResponse) {}
 }

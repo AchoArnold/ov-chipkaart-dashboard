@@ -19,8 +19,8 @@ func NewGoKitLogger(writer io.Writer) Logger {
 }
 
 // Log is responsible for logging stuff
-func (logger GoKitLogger) Log(keyVals ...interface{}) error {
-	err := logger.client.Log(keyVals...)
+func (logger GoKitLogger) Log(keyValuePairs ...interface{}) error {
+	err := logger.client.Log(keyValuePairs...)
 	if err != nil {
 		println(err.Error())
 	}

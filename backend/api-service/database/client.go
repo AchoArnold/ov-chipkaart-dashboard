@@ -4,5 +4,4 @@ package database
 type DB interface {
 	UserRepository() UserRepository
 	AnalyzeRequestRepository() AnalyzeRequestRepository
-	RawRecordRepository() RawRecordRepository
 }

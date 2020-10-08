@@ -2,6 +2,7 @@ package resolver
 
 import (
 	"context"
+	raw_records_service "github.com/AchoArnold/ov-chipkaart-dashboard/backend/shared/proto/raw-records-service"
 
 	internalErrors "github.com/AchoArnold/ov-chipkaart-dashboard/backend/api-service/errors"
 
@@ -48,6 +49,7 @@ type Resolver struct {
 	logger                    logger.Logger
 	jwtService                jwt.Service
 	transactionsServiceClient transactions_service.TransactionsServiceClient
+	rawRecordsServiceClient raw_records_service.RawRecordsServiceClient
 }
 
 // NewResolver creates a new instance of the resolver
@@ -59,8 +61,8 @@ func NewResolver(
 	logger logger.Logger,
 	jwtService jwt.Service,
 	transactionsServiceClient transactions_service.TransactionsServiceClient,
+	rawRecordsServiceClient raw_records_service.RawRecordsServiceClient,
 ) *Resolver {
-
 	return &Resolver{
 		db:                        db,
 		validator:                 validator,
@@ -69,6 +71,7 @@ func NewResolver(
 		logger:                    logger,
 		jwtService:                jwtService,
 		transactionsServiceClient: transactionsServiceClient,
+		rawRecordsServiceClient:rawRecordsServiceClient,
 	}
 }
 
